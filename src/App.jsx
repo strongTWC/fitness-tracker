@@ -7,11 +7,11 @@ const gyms = [
   { id: 'ff-centralworld', name: 'Fitness First — CentralWorld', brand: 'Fitness First', type: 'ฟิตเนส · เวทเทรนนิ่ง · คลาส', address: 'ชั้น 3 CentralWorld, ราชประสงค์', color: 'lime', lat: 13.7466, lng: 100.5393 },
   { id: 'ff-siam', name: 'Fitness First — Siam Paragon', brand: 'Fitness First', type: 'ฟิตเนส · เวทเทรนนิ่ง · คลาส', address: 'ชั้น 3 Siam Paragon, ปทุมวัน', color: 'lime', lat: 13.7466, lng: 100.5347 },
   { id: 'ff-emquartier', name: 'Fitness First — The EmQuartier', brand: 'Fitness First', type: 'ฟิตเนส · เวทเทรนนิ่ง · คลาส', address: 'ชั้น 3 The EmQuartier, พร้อมพงษ์', color: 'lime', lat: 13.7318, lng: 100.5697 },
-  { id: 'ff-qhouse', name: 'Fitness First — Q House Lumpini', brand: 'Fitness First', type: 'ฟิตเนส · เวทเทรนนิ่ง · คลาส', address: 'Q House Lumpini, ถนนสาทรใต้', color: 'lime', lat: 13.7259, lng: 100.ನ್ನು5412 },
+  { id: 'ff-qhouse', name: 'Fitness First — Q House Lumpini', brand: 'Fitness First', type: 'ฟิตเนส · เวทเทรนนิ่ง · คลาส', address: 'Q House Lumpini, ถนนสาทรใต้', color: 'lime', lat: 13.7259, lng: 100.5412 },
   { id: 'jetts-siam', name: 'Jetts 24 Hour Fitness — Siam Square One', brand: 'Jetts', type: 'ฟิตเนส · เปิด 24 ชั่วโมง', address: 'ชั้น 5 Siam Square One, ปทุมวัน', color: 'peach', lat: 13.7445, lng: 100.5345 },
   { id: 'jetts-silom', name: 'Jetts 24 Hour Fitness — Silom Complex', brand: 'Jetts', type: 'ฟิตเนส · เปิด 24 ชั่วโมง', address: 'ชั้น 4 Silom Complex, สีลม', color: 'peach', lat: 13.7291, lng: 100.5341 },
   { id: 'jetts-rama9', name: 'Jetts 24 Hour Fitness — Central Rama 9', brand: 'Jetts', type: 'ฟิตเนส · เปิด 24 ชั่วโมง', address: 'ชั้น 6 Central Rama 9, พระราม 9', color: 'peach', lat: 13.7586, lng: 100.5662 },
-  { id: 'jetts-ratchada', name: 'Jetts 24 Hour Fitness — The Street Ratchada', brand: 'Jetts', type: 'ฟิตเนส · เปิด 24 ชั่วโมง', address: 'ชั้น 2 The Street Ratchada, รัชดาภิเษก', color: 'peach', lat: 13. j, lng: 100.5748 },
+  { id: 'jetts-ratchada', name: 'Jetts 24 Hour Fitness — The Street Ratchada', brand: 'Jetts', type: 'ฟิตเนส · เปิด 24 ชั่วโมง', address: 'ชั้น 2 The Street Ratchada, รัชดาภิเษก', color: 'peach', lat: 13.7689, lng: 100.5748 },
 ]
 
 function readCheckins() {
