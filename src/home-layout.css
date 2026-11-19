@@ -1,0 +1,205 @@
+/* Desktop and tablet check-in dashboard layout. Mobile keeps the existing stacked layout. */
+@media (min-width: 768px) {
+  .main-content:has(.home-challenge) {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .content-wrap:has(.home-challenge) {
+    display: grid;
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    grid-template-rows: auto auto auto auto auto auto minmax(0, 1fr) auto;
+    column-gap: clamp(14px, 2vw, 26px);
+    row-gap: 10px;
+    height: calc(100vh - 65px);
+    height: calc(100dvh - 65px);
+    padding-top: clamp(14px, 2.5vh, 28px);
+    padding-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .content-wrap:has(.home-challenge) > .welcome-row {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    align-self: center;
+    margin-bottom: 2px;
+  }
+
+  .content-wrap:has(.home-challenge) > .stats-row {
+    grid-column: 1;
+    grid-row: 2;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+    margin: 0;
+  }
+
+  .content-wrap:has(.home-challenge) > .section-heading {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: end;
+    margin: 0;
+  }
+
+  .content-wrap:has(.home-challenge) > .home-challenge {
+    grid-column: 1;
+    grid-row: 3 / 5;
+    align-self: start;
+    min-width: 0;
+    margin: 0;
+    padding: clamp(10px, 1.5vw, 16px);
+  }
+
+  .content-wrap:has(.home-challenge) > .gym-filters {
+    grid-column: 2;
+    grid-row: 3;
+    align-self: center;
+    margin: 0;
+  }
+
+  .content-wrap:has(.home-challenge) > .search-row {
+    grid-column: 2;
+    grid-row: 4;
+    margin: 0;
+  }
+
+  .content-wrap:has(.home-challenge) > .location-hint {
+    grid-column: 2;
+    grid-row: 5;
+    margin: 0;
+  }
+
+  .content-wrap:has(.home-challenge) > .geo-help {
+    grid-column: 2;
+    grid-row: 6;
+    margin: 0;
+    max-height: 22vh;
+    overflow-y: auto;
+  }
+
+  .content-wrap:has(.home-challenge) > .place-list,
+  .content-wrap:has(.home-challenge) > .empty-state {
+    grid-column: 2;
+    grid-row: 7;
+    min-height: 0;
+    max-height: min(70vh, 100%);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #526638 #141816;
+  }
+
+  .content-wrap:has(.home-challenge) > .place-list {
+    align-content: start;
+    padding-right: 4px;
+  }
+
+  .content-wrap:has(.home-challenge) > .empty-state {
+    align-self: start;
+  }
+
+  .content-wrap:has(.home-challenge) > .checkin-bar {
+    grid-column: 1;
+    grid-row: 5 / 7;
+    align-self: start;
+    min-width: 0;
+    margin: 0;
+  }
+
+  .content-wrap:has(.home-challenge) > .notice {
+    grid-column: 1;
+    grid-row: 7;
+    align-self: start;
+    margin: 0;
+  }
+
+  .content-wrap:has(.home-challenge) > .footer-note {
+    grid-column: 1 / -1;
+    grid-row: 8;
+    margin: 0;
+  }
+
+  .home-challenge-heading {
+    margin-bottom: 8px;
+  }
+
+  .home-challenge-heading h2 {
+    font-size: clamp(14px, 1.25vw, 17px);
+  }
+
+  .top-three-header {
+    margin-bottom: 7px;
+  }
+
+  .top-three-row {
+    gap: 7px;
+    padding: 8px;
+  }
+
+  .top-three-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .top-three-name {
+    font-size: 10px;
+  }
+
+  .top-three-gym {
+    font-size: 8px;
+  }
+
+  .top-three-points {
+    font-size: 9px;
+  }
+
+  .stat-card {
+    min-height: 104px;
+    padding: 11px 9px;
+  }
+
+  .stat-label,
+  .stat-foot {
+    font-size: 8px;
+  }
+
+  .stat-value {
+    font-size: 21px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 900px) {
+  .content-wrap:has(.home-challenge) {
+    column-gap: 12px;
+    row-gap: 8px;
+    padding-left: 3%;
+    padding-right: 3%;
+  }
+
+  .content-wrap:has(.home-challenge) > .welcome-row h1 {
+    font-size: 27px;
+  }
+
+  .gym-card {
+    flex-wrap: wrap;
+    gap: 7px;
+    padding: 9px;
+  }
+
+  .gym-card .place-info {
+    flex: 1 1 calc(100% - 48px);
+  }
+
+  .gym-card .place-meta {
+    min-width: 0;
+    margin-left: 42px;
+    flex: 1;
+    text-align: left;
+  }
+
+  .gym-card .gym-select,
+  .gym-card .place-checkin {
+    min-width: 58px;
+    padding: 7px 6px;
+  }
+}
