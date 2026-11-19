@@ -302,6 +302,7 @@ function App() {
               </section>
 
               <section className="fit-gym-panel" aria-labelledby="selected-gym-title">
+                <div className="fit-gym-control">
                 <div className="fit-gym-selected">
                   <div className="fit-gym-selected-copy">
                     <span className="fit-gym-icon"><Dumbbell size={18} /></span>
@@ -322,8 +323,33 @@ function App() {
                     <Check size={16} /> เช็คอิน <span>+20</span>
                   </button>
                 </div>
+                <div className="fit-recent-section fit-gym-recent-desktop">
+                  <div className="fit-recent-heading"><b>สาขาที่ไปล่าสุด</b><small>{checkins.length ? 'เลือกเพื่อเช็คอินอีกครั้ง' : 'สาขายอดนิยม'}</small></div>
+                  <div className="fit-recent-list">
+                    {recentGyms.map((gym) => (
+                      <button
+                        type="button"
+                        key={gym.id}
+                        className={`fit-recent-pill ${selectedGymId === gym.id ? 'selected' : ''}`}
+                        onClick={() => selectGym(gym)}
+                        aria-pressed={selectedGymId === gym.id}
+                        title={gym.name}
+                      >
+                        <MapPin size={14} /><span>{gym.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <button type="button" className="fit-gym-toggle" aria-expanded={gymListOpen} aria-controls="gym-picker" onClick={() => setGymListOpen((open) => !open)}>
+                  <span><b>เลือก / เปลี่ยนสาขา</b><small>ดูสาขาทั้งหมด · {gyms.length} แห่ง</small></span>
+                  {gymListOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  <span className="fit-toggle-thai">{gymListOpen ? 'ซ่อน' : 'เปิด'}</span>
+                </button>
+                </div>
 
-                <div className="fit-recent-section">
+                {gymListOpen && (
+                  <div className="fit-gym-picker" id="gym-picker">
+                <div className="fit-recent-section fit-gym-recent-mobile">
                   <div className="fit-recent-heading"><b>สาขาที่ไปล่าสุด</b><small>{checkins.length ? 'เลือกเพื่อเช็คอินอีกครั้ง' : 'สาขายอดนิยม'}</small></div>
                   <div className="fit-recent-list">
                     {recentGyms.map((gym) => (
@@ -341,14 +367,6 @@ function App() {
                   </div>
                 </div>
 
-                <button type="button" className="fit-gym-toggle" aria-expanded={gymListOpen} aria-controls="gym-picker" onClick={() => setGymListOpen((open) => !open)}>
-                  <span><b>Find your gym</b><small>เลือกสาขา · {gyms.length} แห่ง</small></span>
-                  {gymListOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                  <span className="fit-toggle-thai">{gymListOpen ? 'ซ่อนรายการ' : 'เลือกสาขา'}</span>
-                </button>
-
-                {gymListOpen && (
-                  <div className="fit-gym-picker" id="gym-picker">
                     <div className="fit-gym-tools">
                       <button type="button" className="fit-location" onClick={locateMe} disabled={locating}>
                         <LocateFixed size={14} /> {locating ? 'กำลังค้นหา…' : 'ค้นหาตำแหน่ง'}
