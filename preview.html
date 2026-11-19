@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#101510" />
+  <title>FitCheck — เช็คอินฟิตเนส</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg-main: #0b0d0c;
+      --bg-card: #141816;
+      --bg-row: #0f1210;
+      --bg-top1: #182216;
+      --accent: #a3e635;
+      --border-subtle: #27272a;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: #f4f4f5;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    .fc-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 1.5rem;
+    }
+
+    .fc-btn-primary {
+      background-color: var(--accent);
+      color: #09090b;
+      font-weight: 800;
+      border-radius: 1rem;
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    .fc-btn-primary:hover {
+      background-color: #bef264;
+    }
+
+    .fc-btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .fc-rank-row {
+      background-color: var(--bg-row);
+      border: 1px solid rgba(39, 39, 42, 0.85);
+      border-radius: 1rem;
+      transition: all 0.25s ease;
+    }
+
+    .fc-rank-row.is-top1 {
+      background-color: var(--bg-top1);
+      border: 1px solid var(--accent);
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-24 md:pb-10">
+
+  <!-- Top Navigation Bar (Desktop & Tablet) -->
+  <header class="border-b border-zinc-800/80 bg-[#0d100e]/95 backdrop-blur sticky top-0 z-20">
+    <div class="max-w-5xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
+      <button onclick="switchTab('home')" class="flex items-center gap-2 font-black text-white text-base">
+        <span class="w-2.5 h-2.5 rounded-full bg-lime-400"></span>
+        <span>fitcheck .</span>
+      </button>
+
+      <nav class="hidden md:flex items-center gap-6 text-xs font-semibold">
+        <button id="nav-home-md" onclick="switchTab('home')" class="text-lime-400">หน้าหลัก</button>
+        <button id="nav-activities-md" onclick="switchTab('activities')" class="text-zinc-400 hover:text-white">กิจกรรมของฉัน</button>
+        <button id="nav-guide-md" onclick="switchTab('guide')" class="text-zinc-400 hover:text-white">คู่มือออกกำลังกาย</button>
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <span class="px-3 py-1 rounded-full bg-[#151a16] border border-lime-400/40 text-xs font-bold text-lime-400">
+          เดือนนี้ <span id="monthCount">5</span> ครั้ง
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-md md:max-w-3xl lg:max-w-5xl mx-auto px-4 md:px-6 pt-5 md:pt-7">
+
+    <!-- ==================== TAB 1: HOME (TOP 3 ONLY) ==================== -->
+    <div id="tab-home" class="space-y-5">
+      <div class="flex items-center justify-between lg:hidden">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-full bg-zinc-800 border border-lime-400 flex items-center justify-center text-sm font-black text-lime-400 shrink-0">
+            T
+          </div>
+          <div>
+            <p class="text-[11px] text-zinc-400">สวัสดีตอนเช้า</p>
+            <h1 class="text-base font-extrabold text-white">T Tanawat</h1>
+          </div>
+        </div>
+        <span class="text-xs text-zinc-400">คะแนนรวม <strong id="homeMyPts" class="text-lime-400">100 PTS</strong></span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+        <!-- Left: Check-in -->
+        <div class="md:col-span-5 space-y-4">
+          <section class="fc-card p-4 md:p-5 space-y-3.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] uppercase tracking-wider text-lime-400 font-bold">Quick Check-In</span>
+              <span class="text-xs text-zinc-400">+20 PTS</span>
+            </div>
+
+            <label class="block text-[11px] text-zinc-400">เลือกสาขาที่เข้าใช้บริการ</label>
+            <select
+              id="gymSelect"
+              class="w-full bg-[#0e110f] border border-zinc-700 rounded-2xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-lime-400"
+            >
+              <option value="Fitness First Platinum — AIA Capital Center">Fitness First Platinum — AIA Capital Center</option>
+              <option value="Fitness First Platinum — Siam Paragon">Fitness First Platinum — Siam Paragon</option>
+              <option value="Virgin Active — EmQuartier">Virgin Active — EmQuartier</option>
+              <option value="Jetts 24 Hour — Ladprao">Jetts 24 Hour — Ladprao</option>
+            </select>
+
+            <button onclick="checkInNow()" class="fc-btn-primary w-full py-3.5 text-sm">
+              + เช็คอินเข้ายิมตอนนี้
+            </button>
+          </section>
+
+          <section class="grid grid-cols-2 gap-2.5">
+            <button onclick="switchTab('activities')" class="fc-card p-3.5 text-left hover:border-lime-400/50 transition">
+              <p class="text-xs font-bold text-white">กิจกรรมของฉัน</p>
+              <p class="text-[11px] text-zinc-400 mt-0.5">ประวัติ & อันดับทั้งหมด</p>
+            </button>
+            <button onclick="switchTab('guide')" class="fc-card p-3.5 text-left hover:border-lime-400/50 transition">
+              <p class="text-xs font-bold text-white">คู่มือออกกำลังกาย</p>
+              <p class="text-[11px] text-zinc-400 mt-0.5">ท่าฝึก & ตารางวัน</p>
+            </button>
+          </section>
+        </div>
+
+        <!-- Right: Top 3 Challenge Only -->
+        <div class="md:col-span-7">
+          <section class="fc-card p-4 md:p-5 space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <span class="text-[11px] uppercase tracking-wider text-lime-400 font-bold">Top 3 Challenge</span>
+                <h2 class="text-sm md:text-base font-extrabold text-white">อันดับเช็กอิน (3 อันดับแรก)</h2>
+              </div>
+              <span id="homeRankStatus" class="text-[11px] font-bold text-lime-400"></span>
+            </div>
+
+            <div id="top3List" class="space-y-2.5"></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== TAB 2: ACTIVITIES ==================== -->
+    <div id="tab-activities" class="hidden space-y-5">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-[11px] uppercase tracking-wider text-lime-400 font-bold">Your Workout History</p>
+          <h1 class="text-xl font-black text-white">กิจกรรมของฉัน</h1>
+        </div>
+        <button onclick="resetDemo()" class="text-xs text-zinc-400 hover:text-white underline">รีเซตข้อมูล</button>
+      </div>
+
+      <section class="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+        <div class="fc-card p-3.5">
+          <p class="text-[11px] text-zinc-400">ประวัติทั้งหมด</p>
+          <p id="actTotal" class="text-lg font-extrabold text-white mt-0.5">5 ครั้ง</p>
+        </div>
+        <div class="fc-card p-3.5">
+          <p class="text-[11px] text-zinc-400">คะแนนที่ได้รับ</p>
+          <p id="actPoints" class="text-lg font-extrabold text-lime-400 mt-0.5">100 pts</p>
+        </div>
+        <div class="fc-card p-3.5">
+          <p class="text-[11px] text-zinc-400">เช็กอินเดือนนี้</p>
+          <p id="actMonth" class="text-lg font-extrabold text-white mt-0.5">5 ครั้ง</p>
+        </div>
+        <div class="fc-card p-3.5">
+          <p class="text-[11px] text-zinc-400">สาขาที่เคยไป</p>
+          <p id="actGyms" class="text-lg font-extrabold text-white mt-0.5">1 แห่ง</p>
+        </div>
+      </section>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+        <section class="md:col-span-5 fc-card p-4 space-y-2.5">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-lime-400">อันดับผู้เข้าแข่งขันทั้งหมด</h2>
+          <div id="allRankList" class="space-y-2"></div>
+        </section>
+
+        <section class="md:col-span-7 fc-card p-4 space-y-2.5">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-400">ประวัติการเช็กอิน</h2>
+          <div id="historyList" class="space-y-2"></div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ==================== TAB 3: WORKOUT GUIDE ==================== -->
+    <div id="tab-guide" class="hidden space-y-4">
+      <div>
+        <p class="text-[11px] uppercase tracking-wider text-lime-400 font-bold">Workout Guide</p>
+        <h1 class="text-xl font-black text-white">คู่มือท่าออกกำลังกาย</h1>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div class="fc-card p-4 space-y-1">
+          <span class="text-xs font-black text-lime-400">01 • PUSH DAY</span>
+          <h3 class="text-sm font-extrabold text-white">หน้าอก · ไหล่ · ไตรเซปส์</h3>
+          <p class="text-xs text-zinc-400">Bench Press + Overhead Press + Triceps Extension</p>
+        </div>
+        <div class="fc-card p-4 space-y-1">
+          <span class="text-xs font-black text-lime-400">02 • PULL DAY</span>
+          <h3 class="text-sm font-extrabold text-white">หลัง · แขนหลัง · ไบเซปส์</h3>
+          <p class="text-xs text-zinc-400">Pull Up + Barbell Row + Barbell Curl</p>
+        </div>
+        <div class="fc-card p-4 space-y-1">
+          <span class="text-xs font-black text-lime-400">03 • LEG DAY</span>
+          <h3 class="text-sm font-extrabold text-white">ขา · สะโพก · แกนกลาง</h3>
+          <p class="text-xs text-zinc-400">Barbell Squat + Romanian Deadlift + Plank</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="md:hidden fixed bottom-0 inset-x-0 bg-[#101311]/95 backdrop-blur border-t border-zinc-800 z-20">
+    <div class="max-w-md mx-auto grid grid-cols-3 py-3 text-center text-xs">
+      <button id="nav-home-mb" onclick="switchTab('home')" class="text-lime-400 font-bold">หน้าหลัก</button>
+      <button id="nav-activities-mb" onclick="switchTab('activities')" class="text-zinc-400">กิจกรรม</button>
+      <button id="nav-guide-mb" onclick="switchTab('guide')" class="text-zinc-400">คู่มือ</button>
+    </div>
+  </nav>
+
+  <script>
+    const KEY = 'fitcheck_complete_v1';
+
+    const defaultData = {
+      monthCount: 5,
+      players: [
+        { id: 'me', name: 'T Tanawat', avatar: 'T', gym: 'Fitness First Platinum — AIA Capital Center', pts: 100, isMe: true },
+        { id: 'p2', name: 'นนท์', avatar: 'น', gym: 'Fitness First Platinum — Siam Paragon', pts: 120, isMe: false },
+        { id: 'p3', name: 'กอล์ฟ', avatar: 'ก', gym: 'Virgin Active — EmQuartier', pts: 80, isMe: false },
+        { id: 'p4', name: 'บอส', avatar: 'บ', gym: 'Jetts 24 Hour — Ladprao', pts: 60, isMe: false }
+      ],
+      logs: [
+        { id: 1, gym: 'Fitness First Platinum — AIA Capital Center', time: '19 พ.ย. 2569 • 07:43', pts: 20 },
+        { id: 2, gym: 'Fitness First Platinum — AIA Capital Center', time: '19 พ.ย. 2569 • 07:43', pts: 20 },
+        { id: 3, gym: 'Fitness First Platinum — AIA Capital Center', time: '19 พ.ย. 2569 • 07:43', pts: 20 },
+        { id: 4, gym: 'Fitness First Platinum — AIA Capital Center', time: '19 พ.ย. 2569 • 07:43', pts: 20 },
+        { id: 5, gym: 'Fitness First Platinum — AIA Capital Center', time: '19 พ.ย. 2569 • 07:43', pts: 20 }
+      ]
+    };
+
+    let appData = JSON.parse(localStorage.getItem(KEY)) || JSON.parse(JSON.stringify(defaultData));
+
+    function saveAppData() {
+      localStorage.setItem(KEY, JSON.stringify(appData));
+    }
+
+    function switchTab(tabName) {
+      ['home', 'activities', 'guide'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tabName);
+        const mdBtn = document.getElementById(`nav-${t}-md`);
+        const mbBtn = document.getElementById(`nav-${t}-mb`);
+        if (mdBtn) mdBtn.className = t === tabName ? 'text-lime-400' : 'text-zinc-400 hover:text-white';
+        if (mbBtn) mbBtn.className = t === tabName ? 'text-lime-400 font-bold' : 'text-zinc-400';
+      });
+    }
+
+    function createRankRow(player, rank) {
+      const isFirst = rank === 1;
+      const div = document.createElement('div');
+      div.className = `fc-rank-row ${isFirst ? 'is-top1' : ''} p-3 flex items-center justify-between gap-3`;
+      div.innerHTML = `
+        <div class="flex items-center gap-2.5 min-w-0">
+          <span class="w-4 text-xs font-black ${isFirst ? 'text-lime-400' : 'text-zinc-400'}">${rank}</span>
+          <div class="w-10 h-10 rounded-full bg-zinc-800 border ${isFirst ? 'border-lime-400' : 'border-zinc-700'} flex items-center justify-center text-xs font-extrabold shrink-0">
+            ${player.avatar}
+          </div>
+          <div class="min-w-0">
+            <p class="text-xs md:text-sm font-extrabold text-white truncate">${player.name}</p>
+            <p class="text-[11px] text-zinc-400 truncate">สาขา: ${player.gym}</p>
+          </div>
+        </div>
+        <span class="text-xs md:text-sm font-black shrink-0 ${isFirst ? 'text-lime-400' : 'text-white'}">${player.pts} PTS</span>
+      `;
+      return div;
+    }
+
+    function renderAll() {
+      const me = appData.players.find(p => p.isMe);
+      const totalPts = appData.logs.reduce((acc, item) => acc + item.pts, 0);
+      me.pts = totalPts;
+      if (appData.logs[0]) me.gym = appData.logs[0].gym;
+
+      document.getElementById('monthCount').textContent = appData.monthCount;
+      document.getElementById('homeMyPts').textContent = `${me.pts} PTS`;
+
+      const sorted = [...appData.players].sort((a, b) => b.pts - a.pts || (b.isMe ? 1 : -1));
+
+      // Home Top 3 Only
+      const top3List = document.getElementById('top3List');
+      top3List.innerHTML = '';
+      sorted.slice(0, 3).forEach((p, idx) => top3List.appendChild(createRankRow(p, idx + 1)));
+
+      const myRank = sorted.findIndex(p => p.isMe) + 1;
+      document.getElementById('homeRankStatus').textContent = myRank === 1
+        ? 'คุณขึ้นอันดับ #1 แล้ว'
+        : `อันดับคุณ #${myRank}`;
+
+      // Activities Stats & Lists
+      const uniqueGyms = new Set(appData.logs.map(l => l.gym)).size;
+      document.getElementById('actTotal').textContent = `${appData.logs.length} ครั้ง`;
+      document.getElementById('actPoints').textContent = `${totalPts} pts`;
+      document.getElementById('actMonth').textContent = `${appData.monthCount} ครั้ง`;
+      document.getElementById('actGyms').textContent = `${uniqueGyms} แห่ง`;
+
+      const allRankList = document.getElementById('allRankList');
+      allRankList.innerHTML = '';
+      sorted.forEach((p, idx) => allRankList.appendChild(createRankRow(p, idx + 1)));
+
+      const historyList = document.getElementById('historyList');
+      historyList.innerHTML = '';
+      appData.logs.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'fc-rank-row p-3 flex items-center justify-between gap-2';
+        row.innerHTML = `
+          <div class="min-w-0">
+            <p class="text-xs font-bold text-white truncate">${item.gym}</p>
+            <p class="text-[11px] text-zinc-400 mt-0.5">${item.time}</p>
+          </div>
+          <span class="text-xs font-extrabold text-lime-400 shrink-0">+${item.pts} pts</span>
+        `;
+        historyList.appendChild(row);
+      });
+    }
+
+    function checkInNow() {
+      const gym = document.getElementById('gymSelect').value;
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+
+      appData.monthCount += 1;
+      appData.logs.unshift({
+        id: Date.now(),
+        gym,
+        time: `วันนี้ • ${timeStr}`,
+        pts: 20
+      });
+
+      saveAppData();
+      renderAll();
+    }
+
+    function resetDemo() {
+      appData = JSON.parse(JSON.stringify(defaultData));
+      saveAppData();
+      renderAll();
+    }
+
+    renderAll();
+  </script>
+</body>
+</html>
