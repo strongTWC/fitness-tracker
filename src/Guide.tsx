@@ -1,38 +1,170 @@
-import { useState } from 'react'
-import { Activity, Bike, Dumbbell, HeartPulse, MoveRight, ShieldCheck, Zap } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Activity, Bike, Dumbbell, HeartPulse, MoveRight, Search, ShieldCheck, X, Zap } from 'lucide-react'
 import './guide-anatomy.css'
 
 const categories = [
-  { id: 'chest', label: 'อก', icon: Dumbbell, sections: [
-    { id: 'upper-chest', label: 'อกบน (Upper Chest)', zone: 'upperChest', exercises: ['Incline Dumbbell Press — 3 × 8–12', 'Incline Push-up — 3 × 10–15'], tips: ['ปรับม้านั่งเอียงประมาณ 15–30° และเก็บสะบัก', 'ลดน้ำหนักลงอย่างควบคุม ไม่เด้งดัมเบลที่อก', 'หยุดเมื่อรู้สึกเจ็บแปลบที่หัวไหล่'] },
-    { id: 'lower-chest', label: 'อกล่าง (Lower Chest)', zone: 'lowerChest', exercises: ['Decline Push-up — 3 × 8–15', 'Chest Dip — 3 × 6–10'], tips: ['เอนตัวไปข้างหน้าเล็กน้อยระหว่างดัน', 'รักษาหัวไหล่ให้ต่ำและไม่ยกไหล่เข้าหาหู', 'ใช้ระยะการเคลื่อนไหวที่ไม่ทำให้ไหล่เจ็บ'] },
-  ] },
-  { id: 'shoulders', label: 'ไหล่', icon: Activity, sections: [
-    { id: 'front-side-delts', label: 'ไหล่บน (Front/Side Delts)', zone: 'frontDelts', exercises: ['Dumbbell Shoulder Press — 3 × 8–12', 'Lateral Raise — 3 × 12–15'], tips: ['เกร็งลำตัวและไม่แอ่นหลัง', 'ยกแขนในระนาบเฉียงไปด้านหน้าเล็กน้อย', 'เลือกน้ำหนักที่ไม่ต้องเหวี่ยงตัว'] },
-    { id: 'rear-delts', label: 'ไหล่ล่าง (Rear Delts)', zone: 'rearDelts', exercises: ['Face Pull — 3 × 12–15', 'Reverse Fly — 3 × 10–15'], tips: ['เริ่มจากสะบักและกางแขนอย่างควบคุม', 'รักษาคอผ่อนคลาย ไม่ยักไหล่', 'ใช้แรงต้านเบาเพื่อรักษาท่าทาง'] },
-  ] },
-  { id: 'back', label: 'หลัง', icon: MoveRight, sections: [
-    { id: 'upper-back', label: 'หลังบน (Upper Back/Lats)', zone: 'upperBack', exercises: ['Lat Pulldown — 3 × 8–12', 'Seated Cable Row — 3 × 8–12'], tips: ['ดึงศอกลงหรือไปด้านหลัง ไม่กระชากด้วยมือ', 'รักษากระดูกสันหลังเป็นกลาง', 'คืนแขนช้า ๆ เพื่อควบคุมแรงต้าน'] },
-    { id: 'lower-back', label: 'หลังล่าง (Lower Back)', zone: 'lowerBack', exercises: ['Bird Dog — 3 × 8/ข้าง', 'Hip Hinge Drill — 3 × 10'], tips: ['เคลื่อนไหวจากสะโพกและคงหลังเป็นกลาง', 'เริ่มโดยไม่ใช้น้ำหนักจนควบคุมท่าได้', 'หยุดหากมีอาการปวดร้าวหรือชา'] },
-  ] },
-  { id: 'arms', label: 'แขน', icon: Dumbbell, sections: [
-    { id: 'biceps', label: 'แขนหน้า (Biceps)', zone: 'biceps', exercises: ['Dumbbell Curl — 3 × 10–12', 'Hammer Curl — 3 × 10–12'], tips: ['ตรึงข้อศอกไว้ใกล้ลำตัว', 'ไม่โยกลำตัวช่วยยก', 'ลดน้ำหนักช้า ๆ จนเกือบสุดช่วงที่สบาย'] },
-    { id: 'triceps', label: 'แขนหลัง (Triceps)', zone: 'triceps', exercises: ['Cable Pressdown — 3 × 10–15', 'Overhead Extension — 3 × 10–12'], tips: ['ให้ข้อศอกอยู่กับที่ตลอดการเคลื่อนไหว', 'คุมข้อมือให้ตรงและไม่ล็อกข้อศอกแรง', 'เลือกแรงต้านที่ไม่ดึงไหล่หรือหลัง'] },
-  ] },
-  { id: 'legs', label: 'ขา', icon: Activity, sections: [
-    { id: 'quads-hamstrings', label: 'ต้นขา (Quads/Hamstrings)', zone: 'thighs', exercises: ['Goblet Squat — 3 × 8–12', 'Romanian Deadlift — 3 × 8–10'], tips: ['ลงน้ำหนักเต็มฝ่าเท้าและให้เข่าไปตามแนวปลายเท้า', 'ดันสะโพกไปด้านหลังในท่า hip hinge', 'เริ่มน้ำหนักเบาและรักษาหลังเป็นกลาง'] },
-    { id: 'calves', label: 'น่อง (Calves)', zone: 'calves', exercises: ['Standing Calf Raise — 3 × 12–15', 'Seated Calf Raise — 3 × 12–15'], tips: ['เคลื่อนไหวเต็มช่วงโดยไม่เด้งตัว', 'หยุดค้างสั้น ๆ ที่ด้านบนและล่าง', 'จับที่พยุงเพื่อรักษาสมดุลเมื่อจำเป็น'] },
-  ] },
-  { id: 'abs', label: 'Abs', icon: ShieldCheck, sections: [
-    { id: 'core-abs', label: 'กล้ามหน้าท้อง (Core & Abs)', zone: 'abs', exercises: ['Dead Bug — 3 × 8/ข้าง', 'Plank — 3 × 20–45 วินาที', 'Pallof Press — 3 × 10/ข้าง'], tips: ['หายใจออกพร้อมเกร็งหน้าท้องเบา ๆ', 'รักษาหลังส่วนล่างให้อยู่ในตำแหน่งสบาย', 'หยุดเซตเมื่อเริ่มเสียการควบคุม'] },
-  ] },
-  { id: 'cardio', label: 'Cardio', icon: Bike, sections: [
-    { id: 'outdoor-run', label: 'วิ่งกลางแจ้ง (Outdoor Run)', zone: 'fullBody', exercises: ['Easy Run — 20–30 นาที', 'เดินสลับวิ่ง — 20 นาที'], tips: ['เริ่มด้วยเดินวอร์มอัป 5 นาที', 'เพิ่มระยะหรือความเร็วทีละน้อย', 'เลือกเส้นทางปลอดภัยและดื่มน้ำให้พอ'] },
-    { id: 'treadmill-run', label: 'วิ่งบนเทรด (Treadmill Run)', zone: 'fullBody', exercises: ['Treadmill Easy Run — 20 นาที', 'เดินชัน — 15–25 นาที'], tips: ['เริ่มสายพานช้าและก้าวขึ้นอย่างระมัดระวัง', 'มองไปด้านหน้า ไม่จับราวตลอดการวิ่ง', 'ค่อยลดความเร็วเพื่อคูลดาวน์'] },
-  ] },
-  { id: 'class', label: 'Class', icon: HeartPulse, sections: [
-    { id: 'yoga', label: 'โยคะ (Yoga)', zone: 'fullBody', exercises: ['Sun Salutation — 3 รอบ', 'ท่าภูเขาและท่านักรบ — 3 × 30 วินาที'], tips: ['เคลื่อนไหวตามลมหายใจ ไม่ฝืนช่วงการยืด', 'ใช้อุปกรณ์ช่วยพยุงได้ตามต้องการ', 'แจ้งผู้สอนหากมีอาการบาดเจ็บหรือข้อจำกัด'] },
-  ] },
+  {
+    id: 'chest',
+    label: 'อก',
+    group: 'muscle',
+    icon: Dumbbell,
+    sections: [
+      {
+        id: 'upper-chest',
+        label: 'อกบน (Upper Chest)',
+        zone: 'upperChest',
+        exercises: ['Incline Dumbbell Press — 3 × 8–12', 'Incline Push-up — 3 × 10–15'],
+        tips: ['ปรับม้านั่งเอียงประมาณ 15–30° และเก็บสะบัก', 'ลดน้ำหนักลงอย่างควบคุม ไม่เด้งดัมเบลที่อก', 'หยุดเมื่อรู้สึกเจ็บแปลบที่หัวไหล่'],
+      },
+      {
+        id: 'lower-chest',
+        label: 'อกล่าง (Lower Chest)',
+        zone: 'lowerChest',
+        exercises: ['Decline Push-up — 3 × 8–15', 'Chest Dip — 3 × 6–10'],
+        tips: ['เอนตัวไปข้างหน้าเล็กน้อยระหว่างดัน', 'รักษาหัวไหล่ให้ต่ำและไม่ยกไหล่เข้าหาหู', 'ใช้ระยะการเคลื่อนไหวที่ไม่ทำให้ไหล่เจ็บ'],
+      },
+    ],
+  },
+  {
+    id: 'shoulders',
+    label: 'ไหล่',
+    group: 'muscle',
+    icon: Activity,
+    sections: [
+      {
+        id: 'front-side-delts',
+        label: 'ไหล่บน (Front/Side Delts)',
+        zone: 'frontDelts',
+        exercises: ['Dumbbell Shoulder Press — 3 × 8–12', 'Lateral Raise — 3 × 12–15'],
+        tips: ['เกร็งลำตัวและไม่แอ่นหลัง', 'ยกแขนในระนาบเฉียงไปด้านหน้าเล็กน้อย', 'เลือกน้ำหนักที่ไม่ต้องเหวี่ยงตัว'],
+      },
+      {
+        id: 'rear-delts',
+        label: 'ไหล่ล่าง (Rear Delts)',
+        zone: 'rearDelts',
+        exercises: ['Face Pull — 3 × 12–15', 'Reverse Fly — 3 × 10–15'],
+        tips: ['เริ่มจากสะบักและกางแขนอย่างควบคุม', 'รักษาคอผ่อนคลาย ไม่ยักไหล่', 'ใช้แรงต้านเบาเพื่อรักษาท่าทาง'],
+      },
+    ],
+  },
+  {
+    id: 'back',
+    label: 'หลัง',
+    group: 'muscle',
+    icon: MoveRight,
+    sections: [
+      {
+        id: 'upper-back',
+        label: 'หลังบน (Upper Back/Lats)',
+        zone: 'upperBack',
+        exercises: ['Lat Pulldown — 3 × 8–12', 'Seated Cable Row — 3 × 8–12'],
+        tips: ['ดึงศอกลงหรือไปด้านหลัง ไม่กระชากด้วยมือ', 'รักษากระดูกสันหลังเป็นกลาง', 'คืนแขนช้า ๆ เพื่อควบคุมแรงต้าน'],
+      },
+      {
+        id: 'lower-back',
+        label: 'หลังล่าง (Lower Back)',
+        zone: 'lowerBack',
+        exercises: ['Bird Dog — 3 × 8/ข้าง', 'Hip Hinge Drill — 3 × 10'],
+        tips: ['เคลื่อนไหวจากสะโพกและคงหลังเป็นกลาง', 'เริ่มโดยไม่ใช้น้ำหนักจนควบคุมท่าได้', 'หยุดหากมีอาการปวดร้าวหรือชา'],
+      },
+    ],
+  },
+  {
+    id: 'arms',
+    label: 'แขน',
+    group: 'muscle',
+    icon: Dumbbell,
+    sections: [
+      {
+        id: 'biceps',
+        label: 'แขนหน้า (Biceps)',
+        zone: 'biceps',
+        exercises: ['Dumbbell Curl — 3 × 10–12', 'Hammer Curl — 3 × 10–12'],
+        tips: ['ตรึงข้อศอกไว้ใกล้ลำตัว', 'ไม่โยกลำตัวช่วยยก', 'ลดน้ำหนักช้า ๆ จนเกือบสุดช่วงที่สบาย'],
+      },
+      {
+        id: 'triceps',
+        label: 'แขนหลัง (Triceps)',
+        zone: 'triceps',
+        exercises: ['Cable Pressdown — 3 × 10–15', 'Overhead Extension — 3 × 10–12'],
+        tips: ['ให้ข้อศอกอยู่กับที่ตลอดการเคลื่อนไหว', 'คุมข้อมือให้ตรงและไม่ล็อกข้อศอกแรง', 'เลือกแรงต้านที่ไม่ดึงไหล่หรือหลัง'],
+      },
+    ],
+  },
+  {
+    id: 'legs',
+    label: 'ขา',
+    group: 'muscle',
+    icon: Activity,
+    sections: [
+      {
+        id: 'quads-hamstrings',
+        label: 'ต้นขา (Quads/Hamstrings)',
+        zone: 'thighs',
+        exercises: ['Goblet Squat — 3 × 8–12', 'Romanian Deadlift — 3 × 8–10'],
+        tips: ['ลงน้ำหนักเต็มฝ่าเท้าและให้เข่าไปตามแนวปลายเท้า', 'ดันสะโพกไปด้านหลังในท่า hip hinge', 'เริ่มน้ำหนักเบาและรักษาหลังเป็นกลาง'],
+      },
+      {
+        id: 'calves',
+        label: 'น่อง (Calves)',
+        zone: 'calves',
+        exercises: ['Standing Calf Raise — 3 × 12–15', 'Seated Calf Raise — 3 × 12–15'],
+        tips: ['เคลื่อนไหวเต็มช่วงโดยไม่เด้งตัว', 'หยุดค้างสั้น ๆ ที่ด้านบนและล่าง', 'จับที่พยุงเพื่อรักษาสมดุลเมื่อจำเป็น'],
+      },
+    ],
+  },
+  {
+    id: 'abs',
+    label: 'Abs',
+    group: 'muscle',
+    icon: ShieldCheck,
+    sections: [
+      {
+        id: 'core-abs',
+        label: 'กล้ามหน้าท้อง (Core & Abs)',
+        zone: 'abs',
+        exercises: ['Dead Bug — 3 × 8/ข้าง', 'Plank — 3 × 20–45 วินาที', 'Pallof Press — 3 × 10/ข้าง'],
+        tips: ['หายใจออกพร้อมเกร็งหน้าท้องเบา ๆ', 'รักษาหลังส่วนล่างให้อยู่ในตำแหน่งสบาย', 'หยุดเซตเมื่อเริ่มเสียการควบคุม'],
+      },
+    ],
+  },
+  {
+    id: 'cardio',
+    label: 'Cardio',
+    group: 'activity',
+    icon: Bike,
+    sections: [
+      {
+        id: 'outdoor-run',
+        label: 'วิ่งกลางแจ้ง (Outdoor Run)',
+        zone: 'fullBody',
+        exercises: ['Easy Run — 20–30 นาที', 'เดินสลับวิ่ง — 20 นาที'],
+        tips: ['เริ่มด้วยเดินวอร์มอัป 5 นาที', 'เพิ่มระยะหรือความเร็วทีละน้อย', 'เลือกเส้นทางปลอดภัยและดื่มน้ำให้พอ'],
+      },
+      {
+        id: 'treadmill-run',
+        label: 'วิ่งบนเทรด (Treadmill Run)',
+        zone: 'fullBody',
+        exercises: ['Treadmill Easy Run — 20 นาที', 'เดินชัน — 15–25 นาที'],
+        tips: ['เริ่มสายพานช้าและก้าวขึ้นอย่างระมัดระวัง', 'มองไปด้านหน้า ไม่จับราวตลอดการวิ่ง', 'ค่อยลดความเร็วเพื่อคูลดาวน์'],
+      },
+    ],
+  },
+  {
+    id: 'class',
+    label: 'Class',
+    group: 'activity',
+    icon: HeartPulse,
+    sections: [
+      {
+        id: 'yoga',
+        label: 'โยคะ (Yoga)',
+        zone: 'fullBody',
+        exercises: ['Sun Salutation — 3 รอบ', 'ท่าภูเขาและท่านักรบ — 3 × 30 วินาที'],
+        tips: ['เคลื่อนไหวตามลมหายใจ ไม่ฝืนช่วงการยืด', 'ใช้อุปกรณ์ช่วยพยุงได้ตามต้องการ', 'แจ้งผู้สอนหากมีอาการบาดเจ็บหรือข้อจำกัด'],
+      },
+    ],
+  },
 ]
 
 const muscleShapes = {
@@ -53,36 +185,138 @@ const muscleShapes = {
 function AnatomyDiagram({ zone, label }) {
   const backZones = ['rearDelts', 'upperBack', 'lowerBack', 'triceps', 'thighs', 'calves', 'fullBody']
   const back = backZones.includes(zone)
-  return <svg className="anatomy-svg" viewBox="0 0 300 340" role="img" aria-label={`แผนภาพกล้ามเนื้อ: ${label}`}>
-    <g className="anatomy-body">
-      <circle cx="150" cy="45" r="24" />
-      <path d="M132 71 Q150 65 168 71 L188 82 Q196 88 199 101 L214 139 Q217 147 211 151 Q205 154 201 147 L185 116 L180 129 L181 184 Q181 196 176 204 L184 220 L178 253 L176 310 Q175 320 166 320 Q158 320 158 311 L151 264 L144 311 Q143 320 134 320 Q125 320 124 310 L122 253 L116 220 L124 204 Q119 195 119 184 L120 129 L115 116 L99 147 Q95 154 89 151 Q83 147 86 139 L101 101 Q104 88 112 82Z" />
-    </g>
-    <g className={`anatomy-muscle ${back ? 'back-view' : 'front-view'}`}>{muscleShapes[zone]}</g>
-    <text x="150" y="337" textAnchor="middle">{back ? 'ด้านหลัง' : 'ด้านหน้า'} · {label}</text>
-  </svg>
+  return (
+    <svg className="anatomy-svg" viewBox="0 0 300 340" role="img" aria-label={`แผนภาพกล้ามเนื้อ: ${label}`}>
+      <g className="anatomy-body">
+        <circle cx="150" cy="45" r="24" />
+        <path d="M132 71 Q150 65 168 71 L188 82 Q196 88 199 101 L214 139 Q217 147 211 151 Q205 154 201 147 L185 116 L180 129 L181 184 Q181 196 176 204 L184 220 L178 253 L176 310 Q175 320 166 320 Q158 320 158 311 L151 264 L144 311 Q143 320 134 320 Q125 320 124 310 L122 253 L116 220 L124 204 Q119 195 119 184 L120 129 L115 116 L99 147 Q95 154 89 151 Q83 147 86 139 L101 101 Q104 88 112 82Z" />
+      </g>
+      <g className={`anatomy-muscle ${back ? 'back-view' : 'front-view'}`}>{muscleShapes[zone]}</g>
+      <text x="150" y="337" textAnchor="middle">{back ? 'ด้านหลัง' : 'ด้านหน้า'} · {label}</text>
+    </svg>
+  )
+}
+
+function matchesSearch(category, query) {
+  const normalized = query.trim().toLowerCase()
+  if (!normalized) return true
+  if (category.label.toLowerCase().includes(normalized) || category.id.toLowerCase().includes(normalized)) {
+    return true
+  }
+  return category.sections.some(
+    (sec) =>
+      sec.label.toLowerCase().includes(normalized) ||
+      sec.exercises.some((ex) => ex.toLowerCase().includes(normalized)) ||
+      sec.tips.some((tip) => tip.toLowerCase().includes(normalized)),
+  )
 }
 
 export default function Guide() {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedSectionId, setSelectedSectionId] = useState(null)
   const [expanded, setExpanded] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+
   const section = selectedCategory?.sections.find((item) => item.id === selectedSectionId) || selectedCategory?.sections[0]
+
+  const filteredCategories = useMemo(
+    () => categories.filter((category) => matchesSearch(category, searchQuery)),
+    [searchQuery],
+  )
+  const muscleCategories = useMemo(
+    () => filteredCategories.filter((category) => category.group === 'muscle'),
+    [filteredCategories],
+  )
+  const activityCategories = useMemo(
+    () => filteredCategories.filter((category) => category.group === 'activity'),
+    [filteredCategories],
+  )
 
   function openCategory(category) {
     setSelectedCategory(category)
     setSelectedSectionId(category.sections[0].id)
   }
 
-  return <section className={`fit-guide ${expanded ? 'expanded' : ''}`} id="gym-guide" aria-labelledby="fit-guide-title">
-    <header className="fit-guide-heading"><div><div className="fit-eyebrow"><span /> GYM GUIDE</div><h2 id="fit-guide-title">Gym Guide</h2></div><button className="fit-guide-more" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded}>{expanded ? 'Less' : 'More'}<span>{expanded ? 'ซ่อน' : 'ดูทั้งหมด'}</span></button></header>
-    <div className="fit-guide-scroller"><div className="fit-guide-grid">{categories.map((category) => { const Icon = category.icon; return <button key={category.id} type="button" className="fit-guide-tile" onClick={() => openCategory(category)} aria-label={`ดูคู่มือท่า${category.label}`}><Icon size={20} /><b>{category.label}</b></button> })}</div></div>
-    {section && selectedCategory && <div className="fit-guide-backdrop" role="presentation" onClick={() => setSelectedCategory(null)}><section className="fit-guide-modal anatomy-modal" role="dialog" aria-modal="true" aria-labelledby="fit-guide-modal-title" onClick={(event) => event.stopPropagation()}>
-      <button className="fit-guide-close" onClick={() => setSelectedCategory(null)} aria-label="ปิด">×</button>
-      <div className="fit-eyebrow"><span /> {selectedCategory.label.toUpperCase()}</div><h3 id="fit-guide-modal-title">{selectedCategory.label} · คู่มือฝึก</h3>
-      <div className="guide-subcategory-tabs" role="tablist" aria-label={`กลุ่มย่อย ${selectedCategory.label}`}>{selectedCategory.sections.map((item) => <button key={item.id} role="tab" aria-selected={section.id === item.id} className={section.id === item.id ? 'active' : ''} onClick={() => setSelectedSectionId(item.id)}>{item.label}</button>)}</div>
-      <div className="anatomy-layout"><AnatomyDiagram zone={section.zone} label={section.label} /><div className="anatomy-content"><section><h4><Dumbbell size={15} /> ท่าแนะนำ</h4><ul>{section.exercises.map((exercise) => <li key={exercise}>{exercise}</li>)}</ul></section><section><h4><Zap size={15} /> จุดสำคัญ</h4><ul>{section.tips.map((tip) => <li key={tip}>{tip}</li>)}</ul></section></div></div>
-      <p className="anatomy-disclaimer"><ShieldCheck size={13} /> เลือกน้ำหนักที่ควบคุมได้ และหยุดหากมีอาการเจ็บ</p>
-    </section></div>}
-  </section>
-}
+  function renderCategoryTiles(items) {
+    return (
+      <div className="fit-guide-grid">
+        {items.map((category) => {
+          const Icon = category.icon
+          return (
+            <button
+              key={category.id}
+              type="button"
+              className="fit-guide-tile"
+              onClick={() => openCategory(category)}
+              aria-label={`ดูคู่มือท่า${category.label}`}
+            >
+              <Icon size={20} />
+              <b>{category.label}</b>
+            </button>
+          )
+        })}
+      </div>
+    )
+  }
+
+  return (
+    <section className={`fit-guide ${expanded ? 'expanded' : ''}`} id="gym-guide" aria-labelledby="fit-guide-title">
+      <header className="fit-guide-heading">
+        <div>
+          <div className="fit-eyebrow"><span /> GYM GUIDE</div>
+          <h2 id="fit-guide-title">Gym Guide</h2>
+        </div>
+        <button
+          className="fit-guide-more"
+          onClick={() => setExpanded((value) => !value)}
+          aria-expanded={expanded}
+        >
+          {expanded ? 'Less' : 'More'}
+          <span>{expanded ? 'ซ่อน' : 'ดูทั้งหมด'}</span>
+        </button>
+      </header>
+
+      <div className="fit-guide-search">
+        <Search size={16} aria-hidden="true" />
+        <input
+          type="search"
+          value={searchQuery}
+          onChange={(event) => setSearchQuery(event.target.value)}
+          placeholder="ค้นหากล้ามเนื้อ ท่าฝึก หรือคลาส..."
+          aria-label="ค้นหากล้ามเนื้อ ท่าฝึก หรือคลาส"
+        />
+        {searchQuery && (
+          <button
+            type="button"
+            className="fit-guide-search-clear"
+            onClick={() => setSearchQuery('')}
+            aria-label="ล้างคำค้นหา"
+          >
+            <X size={14} />
+          </button>
+        )}
+      </div>
+
+      <div className="fit-guide-scroller">
+        {filteredCategories.length === 0 ? (
+          <p className="fit-guide-empty">ไม่พบหมวดหมู่หรือท่าฝึกที่ตรงกับ "{searchQuery}"</p>
+        ) : (
+          <div className="fit-guide-groups">
+            {muscleCategories.length > 0 && (
+              <div className="fit-guide-group">
+                <h3 className="fit-guide-group-title">กลุ่มกล้ามเนื้อหลัก</h3>
+                {renderCategoryTiles(muscleCategories)}
+              </div>
+            )}
+            {activityCategories.length > 0 && (
+              <div className="fit-guide-group">
+                <h3 className="fit-guide-group-title">กิจกรรม & คลาส</h3>
+                {renderCategoryTiles(activityCategories)}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {section && selectedCategory && (
+        <div className="
