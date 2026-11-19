@@ -5,6 +5,10 @@ import {
 } from 'lucide-react'
 import TopThreeChallenge from './components/TopThreeChallenge'
 import Guide from './Guide'
+import DesktopSidebar from './components/Layout/DesktopSidebar'
+import MobileBottomNav from './components/Layout/MobileBottomNav'
+import GlobalHeader from './components/Layout/GlobalHeader'
+import LoadingScreen from './components/LoadingScreen'
 import './geolocation.css'
 import './gym-filters.css'
 import './challenge-home.css'
@@ -91,7 +95,9 @@ function getCombo(entries) {
 }
 
 function App() {
+  const [bootLoaderPhase, setBootLoaderPhase] = useState('visible')
   const [view, setView] = useState('home')
+  const [pendingGuideCategoryId, setPendingGuideCategoryId] = useState(null)
   const [checkins, setCheckins] = useState(() => readArray(CHECKINS_KEY))
   const [players, setPlayers] = useState(() => readArray(PLAYERS_KEY, initialPlayers))
   const [selectedGymId, setSelectedGymId] = useState(null)
@@ -104,6 +110,51 @@ function App() {
   const [notice, setNotice] = useState('')
   const [footerModal, setFooterModal] = useState(null)
   const [formNotice, setFormNotice] = useState('')
+
+  useEffect(() => {
+    let hideTimer = null
+    let removeTimer = null
+    let fallbackTimer = null
+    let finished = false
+
+    const finishLoading = () => {
+      if (finished) return
+      finished = true
+      if (fallbackTimer !== null) window.clearTimeout(fallbackTimer)
+      hideTimer = window.setTimeout(() => {
+        setBootLoaderPhase('leaving')
+        removeTimer = window.setTimeout(() => setBootLoaderPhase('hidden'), 240)
+      }, 700)
+    }
+
+    if (document.readyState === 'complete') {
+      finishLoading()
+    } else {
+      window.addEventListener('load', finishLoading, { once: true })
+      fallbackTimer = window.setTimeout(finishLoading, 3500)
+    }
+
+    return () => {
+      window.removeEventListener('load', finishLoading)
+      if (fallbackTimer !== null) window.clearTimeout(fallbackTimer)
+      if (hideTimer !== null) window.clearTimeout(hideTimer)
+      if (removeTimer !== null) window.clearTimeout(removeTimer)
+    }
+  }, [])
+
+  function navigateToView(nextView) {
+    if (nextView !== 'guide') setPendingGuideCategoryId(null)
+    setView(nextView)
+  }
+
+  function openGuideCategory(categoryId) {
+    setPendingGuideCategoryId(categoryId)
+    setView('guide')
+  }
+
+  function clearPendingGuideCategory() {
+    setPendingGuideCategoryId(null)
+  }
 
   useEffect(() => {
     try {
@@ -249,37 +300,29 @@ function App() {
     }
   }
 
-  const nav = navItems.map(({ id, label, icon: Icon }) => (
-    <button key={id} type="button" className={`fit-nav-link ${view === id ? 'active' : ''}`} onClick={() => setView(id)}>
-      <Icon size={17} /> {label}
-    </button>
-  ))
-
   const footerModalTitle = footerModal === 'feedback'
     ? 'ความคิดเห็นต่อผู้พัฒนา'
     : footerModal === 'suggestion' ? 'แจ้งเพิ่มสาขายิม' : 'กติกา & การคิดคะแนน'
 
   return (
     <div className="fit-app">
-      <aside className="fit-sidebar">
-        <a className="fit-brand" href="#home" onClick={(event) => { event.preventDefault(); setView('home') }}>
-          <span><Activity size={19} /></span> fitcheck<span className="fit-brand-dot">.</span>
-        </a>
-        <div className="fit-nav-title">เมนูหลัก</div>
-        <nav className="fit-nav">{nav}</nav>
-        <div className="fit-sidebar-bottom">
-          <div className="fit-streak"><Flame size={17} /><span><b>คอมโบต่อเนื่อง</b><small>{combo} วัน</small></span></div>
-          <div className="fit-user"><span className="fit-avatar fit-avatar-initial">T</span><b>Tanawat</b></div>
-        </div>
-      </aside>
+      {bootLoaderPhase !== 'hidden' && <LoadingScreen leaving={bootLoaderPhase === 'leaving'} />}
+      <DesktopSidebar
+        items={navItems}
+        activeView={view}
+        onNavigate={navigateToView}
+        onProfileClick={() => navigateToView('profile')}
+        streakDays={combo}
+        profileName="Tanawat"
+      />
 
       <main className="fit-main">
-        <header className="fit-topbar">
-          <div><span>FitCheck</span><i>/</i><b>{navItems.find((item) => item.id === view)?.label}</b></div>
-          <button type="button" className="fit-topbar-profile" onClick={() => setView('profile')}>
-            <span className="fit-avatar fit-avatar-initial">T</span> Tanawat
-          </button>
-        </header>
+        <GlobalHeader
+          pageTitle={navItems.find((item) => item.id === view)?.label || 'เช็คอิน'}
+          onLogoClick={() => navigateToView('home')}
+          onProfileClick={() => navigateToView('profile')}
+          profile={{ name: 'Tanawat' }}
+        />
 
         {view === 'home' && (
           <div className="fit-content">
@@ -308,6 +351,7 @@ function App() {
               </section>
 
               <section className="fit-gym-panel" aria-labelledby="selected-gym-title">
+                <div className="fit-gym-control">
                 <div className="fit-gym-selected">
                   <div className="fit-gym-selected-copy">
                     <span className="fit-gym-icon"><Dumbbell size={18} /></span>
@@ -328,8 +372,33 @@ function App() {
                     <Check size={16} /> เช็คอิน <span>+20</span>
                   </button>
                 </div>
+                <div className="fit-recent-section fit-gym-recent-desktop">
+                  <div className="fit-recent-heading"><b>สาขาที่ไปล่าสุด</b><small>{checkins.length ? 'เลือกเพื่อเช็คอินอีกครั้ง' : 'สาขายอดนิยม'}</small></div>
+                  <div className="fit-recent-list">
+                    {recentGyms.map((gym) => (
+                      <button
+                        type="button"
+                        key={gym.id}
+                        className={`fit-recent-pill ${selectedGymId === gym.id ? 'selected' : ''}`}
+                        onClick={() => selectGym(gym)}
+                        aria-pressed={selectedGymId === gym.id}
+                        title={gym.name}
+                      >
+                        <MapPin size={14} /><span>{gym.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <button type="button" className="fit-gym-toggle" aria-expanded={gymListOpen} aria-controls="gym-picker" onClick={() => setGymListOpen((open) => !open)}>
+                  <span><b>เลือก / เปลี่ยนสาขา</b><small>ดูสาขาทั้งหมด · {gyms.length} แห่ง</small></span>
+                  {gymListOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  <span className="fit-toggle-thai">{gymListOpen ? 'ซ่อน' : 'เปิด'}</span>
+                </button>
+                </div>
 
-                <div className="fit-recent-section">
+                {gymListOpen && (
+                  <div className="fit-gym-picker" id="gym-picker">
+                <div className="fit-recent-section fit-gym-recent-mobile">
                   <div className="fit-recent-heading"><b>สาขาที่ไปล่าสุด</b><small>{checkins.length ? 'เลือกเพื่อเช็คอินอีกครั้ง' : 'สาขายอดนิยม'}</small></div>
                   <div className="fit-recent-list">
                     {recentGyms.map((gym) => (
@@ -347,14 +416,6 @@ function App() {
                   </div>
                 </div>
 
-                <button type="button" className="fit-gym-toggle" aria-expanded={gymListOpen} aria-controls="gym-picker" onClick={() => setGymListOpen((open) => !open)}>
-                  <span><b>Find your gym</b><small>เลือกสาขา · {gyms.length} แห่ง</small></span>
-                  {gymListOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                  <span className="fit-toggle-thai">{gymListOpen ? 'ซ่อนรายการ' : 'เลือกสาขา'}</span>
-                </button>
-
-                {gymListOpen && (
-                  <div className="fit-gym-picker" id="gym-picker">
                     <div className="fit-gym-tools">
                       <button type="button" className="fit-location" onClick={locateMe} disabled={locating}>
                         <LocateFixed size={14} /> {locating ? 'กำลังค้นหา…' : 'ค้นหาตำแหน่ง'}
@@ -387,7 +448,7 @@ function App() {
               </section>
             </div>
 
-            <Guide />
+            <Guide onOpenCategory={openGuideCategory} />
 
             <footer className="fit-footer" aria-label="ข้อมูลเพิ่มเติม">
               <button type="button" onClick={() => openFooterModal('feedback')}>ความคิดเห็นต่อผู้พัฒนา</button>
@@ -416,7 +477,7 @@ function App() {
           </section>
         )}
 
-        {view === 'guide' && <section className="fit-guide-screen"><Guide /></section>}
+        {view === 'guide' && <section className="fit-guide-screen"><Guide initialCategoryId={pendingGuideCategoryId || 'chest'} /></section>}
         {view === 'profile' && (
           <section className="fit-secondary-view">
             <div className="fit-eyebrow"><span /> YOUR PROFILE</div>
@@ -426,13 +487,7 @@ function App() {
         )}
       </main>
 
-      <nav className="fit-mobile-nav" aria-label="เมนูด้านล่าง">
-        {navItems.map(({ id, label, icon: Icon }) => (
-          <button key={id} type="button" className={view === id ? 'active' : ''} onClick={() => setView(id)}>
-            <Icon size={18} /><span>{label}</span>
-          </button>
-        ))}
-      </nav>
+      <MobileBottomNav items={navItems} activeView={view} onNavigate={navigateToView} />
 
       {confirmGym && (
         <div className="fit-confirm-backdrop" role="presentation" onClick={() => setConfirmGym(null)}>

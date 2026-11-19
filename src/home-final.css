@@ -838,3 +838,167 @@ button {
     padding-top: 12px;
   }
 }
+
+
+/* Phase 1: shared global header and profile controls. */
+.fit-topbar-branding {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.fit-topbar-logo {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #f2f4ef;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  cursor: pointer;
+}
+
+.fit-topbar-logo span { color: var(--fit-lime); }
+.fit-topbar-branding > i { color: #526052; font-style: normal; }
+.fit-topbar-branding > b { overflow: hidden; color: #f2f4ef; text-overflow: ellipsis; white-space: nowrap; }
+
+.fit-topbar-avatar-image {
+  display: block;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  border: 2px solid #526b36;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.fit-user {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px 0 0;
+  border: 0;
+  border-top: 1px solid var(--fit-line);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.fit-user:hover { color: var(--fit-lime); }
+
+@media (max-width: 767px) {
+  .fit-topbar { gap: 10px; }
+  .fit-topbar-logo { font-size: 15px; }
+  .fit-topbar-branding { gap: 7px; }
+  .fit-topbar-profile-name { display: none; }
+}
+
+
+/* Mobile: unify selected gym, check-in action, and branch toggle into one card. */
+.fit-gym-control {
+  display: contents;
+}
+
+.fit-gym-recent-mobile {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .fit-gym-panel {
+    padding: 12px;
+  }
+
+  .fit-gym-control {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .fit-gym-control .fit-gym-selected {
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .fit-gym-control .fit-gym-selected-copy {
+    flex: 1;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .fit-gym-control .fit-gym-selected-copy b {
+    max-width: min(48vw, 220px);
+    font-size: 12px;
+  }
+
+  .fit-gym-control .fit-gym-icon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .fit-gym-control .fit-primary-checkin {
+    gap: 4px;
+    padding: 9px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .fit-gym-control .fit-gym-toggle {
+    min-height: 38px;
+    margin: 0;
+    padding: 9px 0 0;
+    border: 0;
+    border-top: 1px solid var(--fit-line);
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .fit-gym-control .fit-gym-toggle > span:first-child {
+    gap: 2px;
+  }
+
+  .fit-gym-control .fit-gym-toggle b {
+    color: #e8eee4;
+    font-size: 12px;
+  }
+
+  .fit-gym-control .fit-gym-toggle small {
+    font-size: 10px;
+  }
+
+  .fit-gym-control .fit-toggle-thai {
+    font-size: 10px;
+  }
+
+  .fit-gym-recent-desktop {
+    display: none;
+  }
+
+  .fit-gym-recent-mobile {
+    display: block;
+    margin: 0 0 12px;
+  }
+
+  .fit-gym-recent-mobile .fit-recent-list {
+    gap: 6px;
+  }
+
+  .fit-gym-recent-mobile .fit-recent-pill {
+    max-width: 100%;
+    padding: 7px 9px;
+    font-size: 11px;
+  }
+
+  .fit-gym-picker {
+    margin-top: 10px;
+  }
+}
