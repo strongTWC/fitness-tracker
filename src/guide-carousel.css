@@ -1,0 +1,173 @@
+.fit-guide {
+  --guide-card-width: 144px;
+  min-width: 0;
+  overflow: hidden;
+  background: #141816;
+}
+
+.fit-guide-heading {
+  min-width: 0;
+}
+
+.fit-guide-carousel-controls {
+  display: none;
+}
+
+.fit-guide-scroller.overflow-x-auto {
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-inline: contain;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.fit-guide-scroller.overflow-x-auto::-webkit-scrollbar {
+  display: none;
+}
+
+.fit-guide-carousel-track {
+  display: flex !important;
+  width: max-content !important;
+  min-width: 100%;
+  align-items: stretch;
+  gap: 12px;
+  padding: 3px 2px 8px;
+}
+
+.fit-guide-carousel-track > .fit-guide-tile {
+  box-sizing: border-box;
+  width: var(--guide-card-width);
+  min-width: var(--guide-card-width);
+  max-width: var(--guide-card-width);
+  min-height: 104px;
+  height: auto;
+  max-height: none;
+  flex: 0 0 var(--guide-card-width) !important;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.fit-guide-carousel-track > .fit-guide-tile b {
+  overflow: visible;
+  white-space: normal;
+  text-align: center;
+}
+
+.fit-guide.expanded .fit-guide-scroller,
+.fit-guide.expanded .fit-guide-scroller.overflow-x-auto {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.fit-guide.expanded .fit-guide-carousel-track {
+  display: flex !important;
+  width: max-content !important;
+  grid-template-columns: none;
+}
+
+.fit-guide.expanded .fit-guide-carousel-track > .fit-guide-tile {
+  width: var(--guide-card-width);
+  min-height: 104px;
+  height: auto;
+}
+
+.fit-guide-carousel-indicators {
+  display: flex;
+  min-height: 15px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 2px 0 0;
+}
+
+.fit-guide-carousel-dot {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #526052;
+  cursor: pointer;
+  transition: width 180ms ease, background-color 180ms ease;
+}
+
+.fit-guide-carousel-dot.active {
+  width: 20px;
+  background: #a3e635;
+}
+
+@media (min-width: 768px) {
+  .fit-guide {
+    --guide-card-width: 148px;
+  }
+
+  .fit-guide-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .fit-guide-carousel-controls {
+    display: flex;
+    gap: 7px;
+    margin-left: auto;
+  }
+
+  .fit-guide-carousel-arrow {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    border: 1px solid #29322c;
+    border-radius: 8px;
+    background: #0b0d0c;
+    color: #a3e635;
+    cursor: pointer;
+  }
+
+  .fit-guide-carousel-arrow span {
+    margin-top: -3px;
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  .fit-guide-carousel-arrow:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .fit-guide-carousel-indicators {
+    min-height: 12px;
+  }
+}
+
+@media (max-width: 767px) {
+  .fit-guide {
+    --guide-card-width: clamp(132px, 38vw, 150px);
+  }
+
+  .fit-guide-heading {
+    align-items: center;
+  }
+
+  .fit-guide-carousel-track {
+    gap: 10px;
+  }
+
+  .fit-guide-carousel-track > .fit-guide-tile {
+    flex-basis: var(--guide-card-width) !important;
+    min-width: var(--guide-card-width);
+    max-width: var(--guide-card-width);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fit-guide-scroller.overflow-x-auto {
+    scroll-behavior: auto;
+  }
+}
