@@ -1,4 +1,32 @@
 const GUIDE_SELECTOR = '.fit-guide'
+const imageByCategory = {
+  'อก': 'chest.png',
+  'ไหล่': 'shoulders.png',
+  'หลัง': 'back.png',
+  'แขน': 'biceps.png',
+  'ขา': 'legs-calves.png',
+  Abs: 'abs.png',
+  Cardio: 'cardio.png',
+  Class: 'yoga.png',
+}
+
+function addCategoryImages(cards) {
+  cards.forEach((card) => {
+    if (card.querySelector('.fit-guide-tile-image')) return
+
+    const label = card.querySelector('b')?.textContent?.trim()
+    const imageFile = imageByCategory[label]
+    if (!imageFile) return
+
+    const image = document.createElement('img')
+    image.className = 'fit-guide-tile-image'
+    image.src = `${import.meta.env.BASE_URL}${imageFile}`
+    image.alt = ''
+    image.setAttribute('aria-hidden', 'true')
+    image.loading = 'lazy'
+    card.prepend(image)
+  })
+}
 
 function enhanceGuide(guide) {
   if (guide.dataset.carouselReady === 'true') return
@@ -11,6 +39,7 @@ function enhanceGuide(guide) {
   const cards = [...track.querySelectorAll('.fit-guide-tile')]
   if (!cards.length) return
 
+  addCategoryImages(cards)
   guide.dataset.carouselReady = 'true'
   scroller.classList.add('overflow-x-auto', 'snap-x', 'snap-mandatory')
   scroller.setAttribute('role', 'region')

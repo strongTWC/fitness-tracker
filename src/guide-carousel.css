@@ -64,6 +64,18 @@
   outline-offset: 2px;
 }
 
+.fit-guide-tile-image {
+  display: block;
+  width: 54px;
+  height: 54px;
+  flex: none;
+  object-fit: contain;
+}
+
+.fit-guide-carousel-track > .fit-guide-tile > svg {
+  display: none;
+}
+
 .fit-guide-carousel-track > .fit-guide-tile b {
   overflow: visible;
   white-space: normal;
