@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Activity, ArrowDownRight, ArrowUpRight, Check, ChevronDown, Clock3, Dumbbell, Flame, LocateFixed, MapPin, Search, Target, Zap } from 'lucide-react'
 import './geolocation.css'
+import './gym-filters.css'
 
 const CHECKINS_KEY = 'fitcheck-checkins-v1'
 const gyms = [
@@ -11,8 +12,8 @@ const gyms = [
   { id: 'jetts-siam', name: 'Jetts 24 Hour Fitness — Siam Square One', brand: 'Jetts', type: 'ฟิตเนส · เปิด 24 ชั่วโมง', address: 'ชั้น 5 Siam Square One, ปทุมวัน', color: 'peach', lat: 13.7445, lng: 100.5345 },
   { id: 'jetts-silom', name: 'Jetts 24 Hour Fitness — Silom Complex', brand: 'Jetts', type: 'ฟิตเนส · เปิด 24 ชั่วโมง', address: 'ชั้น 4 Silom Complex, สีลม', color: 'peach', lat: 13.7291, lng: 100.5341 },
   { id: 'jetts-rama9', name: 'Jetts 24 Hour Fitness — Central Rama 9', brand: 'Jetts', type: 'ฟิตเนส · เปิด 24 ชั่วโมง', address: 'ชั้น 6 Central Rama 9, พระราม 9', color: 'peach', lat: 13.7586, lng: 100.5662 },
-  { id: 'ff-aia-capital', name: 'Fitness First Platinum — AIA Capital Center', brand: 'Fitness First', type: 'ฟิตเนส · เวทเทรนนิ่ง · คลาส', address: 'ชั้น 3 AIA Capital Center, รัชดาภิเษก', color: 'lime', lat: 13.7604, lng: 100.5698 },
-  { id: 'jetts-ratchada', name: 'Jetts 24 Hour Fitness — The Street Ratchada', brand: 'Jetts', type: 'ฟิตเนส · เปิด 24 ชั่วโมง', address: 'ชั้น 2 The Street Ratchada, รัชดาภิเษก', color: 'peach', lat: 13.7689, lng: 100.5748 },
+  { id: 'ff-aia-capital', name: 'Fitness First Platinum — AIA Capital Center', brand: 'Fitness First', type: 'ฟิตเนส · เวทเทรนนิ่ง · คลาส', address: 'ชั้น ออกกำลังกาย AIA Capital Center, รัชดาภิเษก', color: 'lime', lat: 13.7595, lng: 100.5683 },
+  { id: 'jetts-ratchada', name: 'Jetts 24 Hour Fitness — The Street Ratchada', brand: 'Jetts', type: 'ฟิตเนส · เปิด 24 ชั่วโมง', address: 'ชั้น 2 The Street Ratchada, รัชดาภิเษก', color: 'peach', lat: 13.7692, lng: 100.5748 },
 ]
 
 function readCheckins() {
@@ -43,22 +44,10 @@ function formatDate(value) {
 }
 
 function locationError(error) {
-  if (error?.code === 1) return {
-    title: 'การเข้าถึงตำแหน่งถูกปฏิเสธ',
-    message: 'อนุญาต Location ให้เว็บไซต์นี้ในการตั้งค่าเบราว์เซอร์ แล้วกด “ลองระบุตำแหน่งอีกครั้ง”',
-  }
-  if (error?.code === 2) return {
-    title: 'อุปกรณ์ส่งพิกัดไม่ได้',
-    message: 'ตรวจสอบว่าเปิด Location Services/GPS และปิดโหมดเครื่องบิน จากนั้นลองอีกครั้ง หรือเลือกยิมจากรายการได้เลย',
-  }
-  if (error?.code === 3) return {
-    title: 'ค้นหาตำแหน่งใช้เวลานานเกินไป',
-    message: 'ลองเปิด GPS หรือย้ายไปบริเวณที่รับสัญญาณได้ดี แล้วลองอีกครั้ง คุณยังเลือกยิมด้วยตนเองได้',
-  }
-  return {
-    title: 'ไม่สามารถระบุตำแหน่งได้',
-    message: 'ตรวจสอบการตั้งค่า Location ของอุปกรณ์และเบราว์เซอร์ แล้วลองใหม่ หรือเลือกสาขาจากรายการด้านล่างโดยไม่ใช้พิกัด',
-  }
+  if (error?.code === 1) return { title: 'การเข้าถึงตำแหน่งถูกปฏิเสธ', message: 'อนุญาต Location ให้เว็บไซต์นี้ในการตั้งค่าเบราว์เซอร์ แล้วกด “ลองระบุตำแหน่งอีกครั้ง”' }
+  if (error?.code === 2) return { title: 'อุปกรณ์ส่งพิกัดไม่ได้', message: 'ตรวจสอบว่าเปิด Location Services/GPS และปิดโหมดเครื่องบิน จากนั้นลองอีกครั้ง หรือเลือกยิมจากรายการได้เลย' }
+  if (error?.code === 3) return { title: 'ค้นหาตำแหน่งใช้เวลานานเกินไป', message: 'ลองเปิด GPS หรือย้ายไปบริเวณที่รับสัญญาณได้ดี แล้วลองอีกครั้ง คุณยังเลือกยิมด้วยตนเองได้' }
+  return { title: 'ไม่สามารถระบุตำแหน่งได้', message: 'ตรวจสอบการตั้งค่า Location ของอุปกรณ์และเบราว์เซอร์ แล้วลองใหม่ หรือเลือกสาขาจากรายการด้านล่างโดยไม่ใช้พิกัด' }
 }
 
 function App() {
@@ -67,6 +56,7 @@ function App() {
   const [locating, setLocating] = useState(false)
   const [query, setQuery] = useState('')
   const [brandFilter, setBrandFilter] = useState('all')
+  const [sortByDistance, setSortByDistance] = useState(false)
   const [selectedGymId, setSelectedGymId] = useState('ff-centralworld')
   const [checkins, setCheckins] = useState(readCheckins)
   const [notice, setNotice] = useState('')
@@ -74,8 +64,11 @@ function App() {
   const places = useMemo(() => gyms.map((gym) => ({
     ...gym,
     distanceKm: position ? distanceBetween(position.lat, position.lng, gym.lat, gym.lng) : null,
-  })).sort((a, b) => a.distanceKm === null ? 0 : a.distanceKm - b.distanceKm), [position])
-  const filteredPlaces = places.filter((place) => (brandFilter === 'all' || place.brand === brandFilter) && `${place.name} ${place.type} ${place.address}`.toLowerCase().includes(query.toLowerCase()))
+  })), [position])
+  const filteredPlaces = useMemo(() => {
+    const matches = places.filter((place) => (brandFilter === 'all' || place.brand === brandFilter) && `${place.name} ${place.type} ${place.address}`.toLowerCase().includes(query.toLowerCase()))
+    return sortByDistance && position ? [...matches].sort((a, b) => a.distanceKm - b.distanceKm) : matches
+  }, [places, brandFilter, query, sortByDistance, position])
   const selectedGym = gyms.find((gym) => gym.id === selectedGymId)
   const monthlyCheckins = checkins.filter((entry) => {
     const date = new Date(entry.timestamp)
@@ -97,17 +90,11 @@ function App() {
     setNotice('')
     setGeoError(null)
     if (!window.isSecureContext) {
-      setGeoError({
-        title: 'ต้องเปิดหน้าเว็บผ่าน HTTPS เพื่อใช้ตำแหน่ง',
-        message: 'Geolocation ใช้งานได้บน HTTPS หรือ localhost เท่านั้น หากเปิดผ่าน HTTP ให้เข้าเว็บไซต์แบบ HTTPS แล้วอนุญาต Location ในเบราว์เซอร์',
-      })
+      setGeoError({ title: 'ต้องเปิดหน้าเว็บผ่าน HTTPS เพื่อใช้ตำแหน่ง', message: 'Geolocation ใช้งานได้บน HTTPS หรือ localhost เท่านั้น หากเปิดผ่าน HTTP ให้เข้าเว็บไซต์แบบ HTTPS แล้วอนุญาต Location ในเบราว์เซอร์' })
       return
     }
     if (!navigator.geolocation) {
-      setGeoError({
-        title: 'เบราว์เซอร์นี้ไม่รองรับ Geolocation',
-        message: 'ลองเปิดหน้านี้ด้วยเบราว์เซอร์รุ่นใหม่ หรือเลือก Fitness First / Jetts จากรายการด้านล่างได้โดยไม่ต้องใช้พิกัด',
-      })
+      setGeoError({ title: 'เบราว์เซอร์นี้ไม่รองรับ Geolocation', message: 'ลองเปิดหน้านี้ด้วยเบราว์เซอร์รุ่นใหม่ หรือเลือก Fitness First / Jetts จากรายการได้โดยไม่ต้องใช้พิกัด' })
       return
     }
     setLocating(true)
@@ -116,7 +103,7 @@ function App() {
         setPosition({ lat: coords.latitude, lng: coords.longitude })
         setLocating(false)
         setGeoError(null)
-        setNotice('พบตำแหน่งแล้ว — เรียงสาขาจากใกล้ไปไกล')
+        setNotice('พบตำแหน่งแล้ว — กด “เรียงใกล้ฉัน” เพื่อจัดลำดับสาขา')
       },
       (error) => {
         setLocating(false)
@@ -124,6 +111,16 @@ function App() {
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 },
     )
+  }
+
+  function toggleDistanceSort() {
+    const shouldEnable = !sortByDistance
+    setSortByDistance(shouldEnable)
+    if (shouldEnable && !position) locateMe()
+  }
+
+  function toggleBrand(brand) {
+    setBrandFilter((current) => current === brand ? 'all' : brand)
   }
 
   function checkIn(gym) {
@@ -139,7 +136,7 @@ function App() {
     }
     persistCheckins([entry, ...checkins])
     setSelectedGymId(gym.id)
-    setNotice(`เช็คอินที่ ${gym.name} ส���เร็จ! รับ 20 คะแนนแล้ว${distanceKm === null ? ' (ไม่ได้บันทึกระยะทาง)' : ''}`)
+    setNotice(`เช็คอินที่ ${gym.name} สำเร็จ! รับ 20 คะแนนแล้ว${distanceKm === null ? ' (ไม่ได้บันทึกระยะทาง)' : ''}`)
   }
 
   return (
@@ -163,13 +160,13 @@ function App() {
         <div className="content-wrap">
           {page === 'checkin' ? <>
             <div className="welcome-row"><div><div className="eyebrow"><span className="live-dot" /> YOUR DAILY MOVEMENT</div><h1>วันนี้ไปขยับ<br className="mobile-break" />ร่างกายที่ไหน? <span className="title-spark">✳</span></h1><p className="subtitle">เปิดตำแหน่งเพื่อเรียงสาขาใกล้คุณ หรือเลือกสาขา Fitness First และ Jetts ด้วยตนเอง</p></div><div className="date-chip"><span className="date-icon">{new Date().getDate()}</span><span><b>{new Date().toLocaleDateString('th-TH', { month: 'long' })}</b><small>{new Date().toLocaleDateString('th-TH', { weekday: 'long' })}</small></span></div></div>
-            <section className="stats-row" aria-label="สรุปกิจกรรม"><article className="stat-card"><span className="stat-icon yellow"><Zap size={17} fill="currentColor" /></span><div className="stat-label">คะแนนสะสม</div><div className="stat-value">{totalPoints}<small> pts</small></div><div className="stat-foot">จากการเช็คอินที่บันทึกไว้</div></article><article className="stat-card"><span className="stat-icon green"><MapPin size={17} /></span><div className="stat-label">เช็คอินเดือนนี้</div><div className="stat-value">{monthlyCheckins}<small> ครั้ง</small></div><div className="stat-foot">บันทึกในเบราว์เซอร์ของคุณ</div></article><article className="stat-card"><span className="stat-icon orange"><Flame size={17} /></span><div className="stat-label">สาขาที่ใกล้สุด</div><div className="stat-value stat-distance">{position ? formatDistance(places[0].distanceKm) : '—'}</div><div className="stat-foot">{position ? places[0].name : 'กดใช้ตำแหน่งเพื่อคำนวณระยะ'}</div></article></section>
+            <section className="stats-row" aria-label="สรุปกิจกรรม"><article className="stat-card"><span className="stat-icon yellow"><Zap size={17} fill="currentColor" /></span><div className="stat-label">คะแนนสะสม</div><div className="stat-value">{totalPoints}<small> pts</small></div><div className="stat-foot">จากการเช็คอินที่บันทึกไว้</div></article><article className="stat-card"><span className="stat-icon green"><MapPin size={17} /></span><div className="stat-label">เช็คอินเดือนนี้</div><div className="stat-value">{monthlyCheckins}<small> ครั้ง</small></div><div className="stat-foot">บันทึกในเบราว์เซอร์ของคุณ</div></article><article className="stat-card"><span className="stat-icon orange"><Flame size={17} /></span><div className="stat-label">สาขาที่ใกล้สุด</div><div className="stat-value stat-distance">{position ? formatDistance(Math.min(...places.map((place) => place.distanceKm))) : '—'}</div><div className="stat-foot">{position ? 'ระยะเส้นตรงจากตำแหน่งคุณ' : 'กดเรียงใกล้ฉันเพื่อคำนวณระยะ'}</div></article></section>
             <div className="section-heading"><div><div className="eyebrow">FIND YOUR GYM</div><h2>เลือกสาขาใกล้คุณ <span className="nearby-count">{filteredPlaces.length}</span></h2></div><button className="location-button" onClick={locateMe} disabled={locating}><LocateFixed size={16} /> {locating ? 'กำลังค้นหา…' : position ? 'อัปเดตตำแหน่ง' : 'ใช้ตำแหน่งของฉัน'}</button></div>
-            <div className="gym-filters" aria-label="กรองแบรนด์ยิม"><button className={brandFilter === 'all' ? 'active' : ''} onClick={() => setBrandFilter('all')}>ทุกสาขา</button><button className={brandFilter === 'Fitness First' ? 'active' : ''} onClick={() => setBrandFilter('Fitness First')}>Fitness First</button><button className={brandFilter === 'Jetts' ? 'active' : ''} onClick={() => setBrandFilter('Jetts')}>Jetts</button></div>
+            <div className="gym-filters" aria-label="กรองแบรนด์ยิม"><button className={`filter-toggle ${brandFilter === 'Fitness First' ? 'active' : ''}`} aria-pressed={brandFilter === 'Fitness First'} onClick={() => toggleBrand('Fitness First')}>Fitness First</button><button className={`filter-toggle ${brandFilter === 'Jetts' ? 'active' : ''}`} aria-pressed={brandFilter === 'Jetts'} onClick={() => toggleBrand('Jetts')}>Jetts</button><button className={`filter-toggle distance-toggle ${sortByDistance ? 'active' : ''}`} aria-pressed={sortByDistance} onClick={toggleDistanceSort}><LocateFixed size={14} /> {sortByDistance ? 'เรียงใกล้ฉัน: เปิด' : 'เรียงใกล้ฉัน'}</button><span className="filter-state" role="status">{brandFilter === 'all' ? 'ทุกแบรนด์' : `กรอง: ${brandFilter}`} · {sortByDistance ? position ? 'ใกล้ไปไกล' : 'รอพิกัดเพื่อเรียง' : 'ลำดับเดิม'}</span></div>
             <div className="search-row"><label className="search-box"><Search size={17} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ค้นหาชื่อสาขา ย่าน หรือห้าง..." aria-label="ค้นหาสาขายิม" /></label></div>
             {!position && <div className="location-hint"><LocateFixed size={16} /><span>ยังไม่มีพิกัด — แสดงสาขาให้เลือกตามชื่อและย่าน คุณเลือกและเช็คอินได้เลยโดยไม่ต้องเปิด Location</span></div>}
             {geoError && <section className="geo-help" role="alert"><div className="geo-help-heading"><MapPin size={18} /><div><b>{geoError.title}</b><p>{geoError.message}</p></div></div><div className="geo-help-steps"><strong>วิธีเปิดสิทธิ์ตำแหน่ง</strong><ol><li>กดไอคอนกุญแจ/ตั้งค่าเว็บไซต์ข้างแถบที่อยู่ แล้วตั้งค่า Location เป็น “อนุญาต”</li><li>ตรวจสอบว่าเปิด Location Services ของโทรศัพท์หรือคอมพิวเตอร์</li><li>กลับมาหน้านี้แล้วกด “ลองระบุตำแหน่งอีกครั้ง”</li></ol><small>ชื่อเมนูอาจแตกต่างกันตามเบราว์เซอร์และอุปกรณ์</small></div><button className="geo-retry" onClick={locateMe} disabled={locating}><LocateFixed size={15} /> ลองระบุตำแหน่งอีกครั้ง</button></section>}
-            <div className="place-list">{filteredPlaces.map((place, index) => <article key={place.id} className={`place-card gym-card ${selectedGymId === place.id ? 'selected' : ''}`}><span className={`place-icon ${place.color}`}><Dumbbell size={21} /></span><span className="place-info"><span className="place-title">{place.name}{position && index === 0 && <span className="recommended">ใกล้ที่สุด</span>}</span><span className="place-type">{place.type}</span><span className="place-address"><MapPin size={12} /> {place.address}</span></span><span className="place-meta"><b>{place.distanceKm === null ? 'ระยะทาง —' : formatDistance(place.distanceKm)}</b><small>{position ? (index === 0 ? 'ใกล้ตำแหน่งคุณที่สุด' : 'ระยะเส้นตรงโดยประมาณ') : place.brand}</small></span><button className={`gym-select ${selectedGymId === place.id ? 'chosen' : ''}`} onClick={() => { setSelectedGymId(place.id); setNotice('') }} aria-pressed={selectedGymId === place.id}>{selectedGymId === place.id ? <><Check size={14} /> เลือกแล้ว</> : 'เลือกยิม'}</button><button className="place-checkin" onClick={() => checkIn(place)} aria-label={`เช็คอินที่ ${place.name}`}>เช็คอิน</button></article>)}</div>
+            <div className="place-list">{filteredPlaces.map((place, index) => <article key={place.id} className={`place-card gym-card ${selectedGymId === place.id ? 'selected' : ''}`}><span className={`place-icon ${place.color}`}><Dumbbell size={21} /></span><span className="place-info"><span className="place-title">{place.name}{sortByDistance && position && index === 0 && <span className="recommended">ใกล้ที่สุด</span>}</span><span className="place-type">{place.type}</span><span className="place-address"><MapPin size={12} /> {place.address}</span></span><span className="place-meta"><b>{place.distanceKm === null ? 'ระยะทาง —' : formatDistance(place.distanceKm)}</b><small>{position ? (sortByDistance && index === 0 ? 'ใกล้ตำแหน่งคุณที่สุด' : 'ระยะเส้นตรงโดยประมาณ') : place.brand}</small></span><button className={`gym-select ${selectedGymId === place.id ? 'chosen' : ''}`} onClick={() => { setSelectedGymId(place.id); setNotice('') }} aria-pressed={selectedGymId === place.id}>{selectedGymId === place.id ? <><Check size={14} /> เลือกแล้ว</> : 'เลือกยิม'}</button><button className="place-checkin" onClick={() => checkIn(place)} aria-label={`เช็คอินที่ ${place.name}`}>เช็คอิน</button></article>)}</div>
             {filteredPlaces.length === 0 && <div className="empty-state">ไม่พบสาขาที่ค้นหา ลองเปลี่ยนคำค้นหรือเลือกแบรนด์อื่น</div>}
             {selectedGym && <div className="checkin-bar"><div className="checkin-copy"><span className="checkin-pin"><MapPin size={18} /></span><span><b>สาขาที่เลือก: {selectedGym.name}</b><small>{position ? `ระยะประมาณ ${formatDistance(distanceBetween(position.lat, position.lng, selectedGym.lat, selectedGym.lng))} · เช็คอินรับ 20 คะแนน` : 'เลือกเช็คอินได้เลย · ระยะทางจะไม่ถูกระบุจนกว่าจะเปิดตำแหน่ง'}</small></span></div><button className="checkin-button" onClick={() => checkIn(selectedGym)}>เช็คอินเลย <ArrowUpRight size={17} /></button></div>}
             {notice && <div className={`notice ${notice.includes('สำเร็จ') ? 'success' : ''}`} role="status">{notice}</div>}
