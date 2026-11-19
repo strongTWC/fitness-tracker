@@ -50,12 +50,13 @@
   scroll-snap-align: start;
   scroll-snap-stop: always;
   border: 1px solid #29322c;
-  background: transparent !important;
+  border-radius: 12px;
+  background: #182216 !important;
 }
 
 .fit-guide-carousel-track > .fit-guide-tile:hover {
   border-color: #647a46;
-  background: rgba(163, 230, 53, 0.045) !important;
+  background: #202a1b !important;
 }
 
 .fit-guide-carousel-track > .fit-guide-tile:focus-visible {
@@ -85,7 +86,7 @@
   width: var(--guide-card-width);
   min-height: 104px;
   height: auto;
-  background: transparent !important;
+  background: #182216 !important;
 }
 
 .fit-guide-carousel-indicators {
