@@ -6,6 +6,7 @@ import './geolocation.css'
 import './gym-filters.css'
 import './challenge-home.css'
 import './home-final.css'
+import './checkin-confirmation.css'
 
 const CHECKINS_KEY = 'fitcheck-checkins-v1'
 const CHALLENGE_PLAYERS_KEY = 'fitcheck-challenge-players-v1'
@@ -67,7 +68,6 @@ function getCombo(checkins) {
   }
   return combo
 }
-
 async function imageToDataUrl(file) {
   if (!file.type.startsWith('image/')) throw new Error('กรุณาเลือกไฟล์รูปภาพ')
   const source = await new Promise((resolve, reject) => {
@@ -98,7 +98,8 @@ function App() {
   const [query, setQuery] = useState('')
   const [brand, setBrand] = useState('ทั้งหมด')
   const [gymListOpen, setGymListOpen] = useState(false)
-  const [selectedGymId, setSelectedGymId] = useState('ff-centralworld')
+  const [selectedGymId, setSelectedGymId] = useState(null)
+  const [confirmGym, setConfirmGym] = useState(null)
   const [checkins, setCheckins] = useState(() => readArray(CHECKINS_KEY, []))
   const [players, setPlayers] = useState(() => readArray(CHALLENGE_PLAYERS_KEY, initialPlayers))
   const [avatar, setAvatar] = useState(readAvatar)
@@ -112,7 +113,7 @@ function App() {
     setPlayers((current) => current.map((player) => player.isMe || player.id === 'tanawat' ? { ...player, avatarUrl: avatar } : player))
   }, [avatar])
 
-  const selectedGym = gyms.find((gym) => gym.id === selectedGymId) || gyms[0]
+  const selectedGym = gyms.find((gym) => gym.id === selectedGymId) || null
   const currentMonthEntries = checkins.filter((entry) => {
     const date = new Date(entry.timestamp); const now = new Date()
     return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()
@@ -137,7 +138,14 @@ function App() {
     }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 })
   }
 
-  function checkIn(gym = selectedGym) {
+  function selectGym(gym) {
+    setSelectedGymId(gym.id)
+    setGymListOpen(false)
+    setNotice('')
+  }
+
+  function checkIn(gym) {
+    if (!gym) return
     const distance = position ? distanceBetween(position.lat, position.lng, gym.lat, gym.lng) : null
     const entry = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, gymId: gym.id, gymName: gym.name, distance: distance === null ? 'ไม่ได้ระบุ (ไม่มีพิกัด)' : formatDistance(distance), timestamp: new Date().toISOString(), points: 20 }
     const nextCheckins = [entry, ...checkins]
@@ -146,8 +154,10 @@ function App() {
     setPlayers((current) => current.some((player) => player.isMe || player.id === 'tanawat')
       ? current.map((player) => player.isMe || player.id === 'tanawat' ? { ...player, name: 'Tanawat', gym: gym.name, pts: (Number(player.pts) || 0) + 20, isMe: true, avatarUrl: avatar } : player)
       : [...current, { id: 'tanawat', name: 'Tanawat', gym: gym.name, pts: 20, isMe: true, avatarUrl: avatar }])
-    setSelectedGymId(gym.id)
     setNotice(`เช็คอินที่ ${gym.name} แล้ว รับ +20 PTS`)
+    setConfirmGym(null)
+    setGymListOpen(false)
+    setSelectedGymId(null)
   }
 
   function simulateFriendCheckin() {
@@ -189,9 +199,9 @@ function App() {
         <section className="fit-stats" aria-label="สรุปกิจกรรม"><article><Zap size={16} /><small>คะแนนสะสม</small><b>{monthlyPoints} <em>PTS</em></b></article><article><MapPin size={16} /><small>เช็คอินเดือนนี้</small><b>{currentMonthCheckins} <em>ครั้ง</em></b></article><article><Flame size={16} /><small>คอมโบต่อเนื่อง</small><b className="fit-nearest">{combo} วัน</b></article></section>
         <div className="fit-home-grid">
           <section className="fit-left-column"><section className="fit-challenge-card" aria-label="กระดานผู้นำประจำเดือน"><header className="fit-card-heading"><div><div className="fit-eyebrow">MONTHLY GYM CHALLENGE</div><h2>Top 3 นักเข้ายิม</h2></div><span>เช็คอิน +20 PTS</span></header><TopThreeChallenge players={players} onSimulateFriendCheckin={simulateFriendCheckin} /></section><Guide /></section>
-          <section className="fit-gym-panel" aria-labelledby="find-gym-title"><div className="fit-gym-selected"><div className="fit-gym-selected-copy"><span className="fit-gym-icon"><Dumbbell size={18} /></span><span><small>สาขาที��เลือก</small><b title={selectedGym.name}>{selectedGym.name}</b><small>{position ? formatDistance(distanceBetween(position.lat, position.lng, selectedGym.lat, selectedGym.lng)) : 'เปิดตำแหน่งเพื่อดูระยะทาง'}</small></span></div><button className="fit-primary-checkin" onClick={() => checkIn(selectedGym)}><Check size={16} /> เช็คอิน <span>+20</span></button></div>
+          <section className="fit-gym-panel" aria-labelledby="find-gym-title"><div className="fit-gym-selected"><div className="fit-gym-selected-copy"><span className="fit-gym-icon"><Dumbbell size={18} /></span><span><small>สาขาที่เลือก</small><b title={selectedGym?.name || 'กรุณาเลือกสาขา'}>{selectedGym?.name || 'กรุณาเลือกสาขา'}</b><small>{selectedGym && position ? formatDistance(distanceBetween(position.lat, position.lng, selectedGym.lat, selectedGym.lng)) : 'เลือกยิมก่อนเช็คอิน'}</small></span></div><button className={`fit-primary-checkin ${selectedGym ? 'ready' : 'disabled'}`} onClick={() => selectedGym && setConfirmGym(selectedGym)} disabled={!selectedGym}><Check size={16} /> เช็คอิน <span>+20</span></button></div>
             <button type="button" className="fit-gym-toggle" aria-expanded={gymListOpen} aria-controls="gym-picker" onClick={() => setGymListOpen((open) => !open)}><span><b>Find your gym</b><small id="find-gym-title">เลือกสาขา · {gyms.length} แห่ง</small></span>{gymListOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}<span className="fit-toggle-thai">{gymListOpen ? 'ซ่อนรายการ' : 'เลือกสาขา'}</span></button>
-            {gymListOpen && <div className="fit-gym-picker" id="gym-picker"><div className="fit-gym-tools"><button className="fit-location" onClick={locateMe} disabled={locating}><LocateFixed size={14} />{locating ? 'กำลังหา…' : 'ใกล้ฉัน'}</button><div className="fit-brand-filters">{['ทั้งหมด', 'Fitness First', 'Jetts'].map((item) => <button key={item} className={brand === item ? 'active' : ''} aria-pressed={brand === item} onClick={() => setBrand(item)}>{item}</button>)}</div></div><label className="fit-search"><Search size={15} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ค้นหาชื่อสาขาหรือย่าน" aria-label="ค้นหายิม" /></label><div className="fit-gym-list">{visibleGyms.map((gym) => <article className={`fit-gym-row ${gym.id === selectedGymId ? 'selected' : ''}`} key={gym.id}><button className="fit-gym-info" onClick={() => setSelectedGymId(gym.id)} aria-pressed={gym.id === selectedGymId}><span><b>{gym.name}</b><small>{gym.address}</small></span><strong>{gym.distance === null ? '—' : formatDistance(gym.distance)}</strong></button><button className="fit-row-checkin" onClick={() => checkIn(gym)}>เช็คอิน</button></article>)}</div>{visibleGyms.length === 0 && <p className="fit-empty">ไม่พบสาขาที่ค้นหา</p>}</div>}
+            {gymListOpen && <div className="fit-gym-picker" id="gym-picker"><div className="fit-gym-tools"><button className="fit-location" onClick={locateMe} disabled={locating}><LocateFixed size={14} />{locating ? 'กำลังหา…' : 'ใกล้ฉัน'}</button><div className="fit-brand-filters">{['ทั้งหมด', 'Fitness First', 'Jetts'].map((item) => <button key={item} className={brand === item ? 'active' : ''} aria-pressed={brand === item} onClick={() => setBrand(item)}>{item}</button>)}</div></div><label className="fit-search"><Search size={15} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ค้นหาชื่อสาขาหรือย่าน" aria-label="ค้นหายิม" /></label><div className="fit-gym-list">{visibleGyms.map((gym) => <article className={`fit-gym-row ${gym.id === selectedGymId ? 'selected' : ''}`} key={gym.id}><button className="fit-gym-info" onClick={() => selectGym(gym)} aria-pressed={gym.id === selectedGymId}><span><b>{gym.name}</b><small>{gym.address}</small></span><strong>{gym.distance === null ? '—' : formatDistance(gym.distance)}</strong></button><button className="fit-row-checkin" onClick={() => selectGym(gym)}>เลือก</button></article>)}</div>{visibleGyms.length === 0 && <p className="fit-empty">ไม่พบสาขาที่ค้นหา</p>}</div>}
             {notice && <p className="fit-notice" role="status">{notice}</p>}
           </section>
         </div>
@@ -201,6 +211,7 @@ function App() {
       {view === 'profile' && <section className="fit-profile-view"><header><div className="fit-eyebrow"><span /> YOUR PROFILE</div><h1>โปรไฟล์ของฉัน</h1><p>จัดการข้อมูลและติดตามคอมโบการออกกำลังกาย</p></header><article className="fit-profile-card"><Avatar className="fit-profile-photo" /><h2>Tanawat</h2><p>สมาชิก FitCheck</p><input ref={fileInput} className="fit-file-input" type="file" accept="image/*" onChange={handlePhotoChange} aria-label="อัปโหลดรูปโปรไฟล์" /><button className="fit-edit-photo" onClick={() => fileInput.current?.click()}>แก้ไขรูปภาพ</button>{notice && <span className="fit-profile-notice" role="status">{notice}</span>}</article><div className="fit-profile-stats"><article><Flame size={18} /><small>คอมโบต่อเนื่อง</small><b>{combo} วัน</b></article><article><MapPin size={18} /><small>เช็คอินเดือนนี้</small><b>{currentMonthCheckins} ครั้ง</b></article><article><Zap size={18} /><small>คะแนนเดือนนี้</small><b>{monthlyPoints} PTS</b></article></div></section>}
     </main>
     <nav className="fit-mobile-nav" aria-label="เมนูด้านล่าง">{navItems.map(({ id, label, icon: Icon }) => <button key={id} className={view === id ? 'active' : ''} onClick={() => setView(id)}><Icon size={18} /><span>{label}</span></button>)}</nav>
+    {confirmGym && <div className="fit-confirm-backdrop" role="presentation" onClick={() => setConfirmGym(null)}><section className="fit-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="checkin-confirm-title" onClick={(event) => event.stopPropagation()}><span className="fit-confirm-icon"><MapPin size={22} /></span><h2 id="checkin-confirm-title">ยืนยันว่าสาขา {confirmGym.name} ถูกต้องใช่ไหม?</h2><p>เมื่อยืนยัน คุณจะได้รับ +20 PTS และบันทึกการเช็คอินนี้</p><div className="fit-confirm-actions"><button className="fit-confirm-cancel" onClick={() => setConfirmGym(null)}>ยกเลิก</button><button className="fit-confirm-submit" onClick={() => checkIn(confirmGym)}><Check size={15} /> ยืนยันเช็กอิน</button></div></section></div>}
   </div>
 }
 
