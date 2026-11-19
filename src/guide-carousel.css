@@ -1,8 +1,9 @@
 .fit-guide {
-  --guide-card-width: 144px;
+  --guide-card-width: 152px;
   min-width: 0;
   overflow: hidden;
   background: #141816;
+  border-radius: 16px;
 }
 
 .fit-guide-heading {
@@ -34,16 +35,22 @@
   width: max-content !important;
   min-width: 100%;
   align-items: stretch;
-  gap: 12px;
-  padding: 3px 2px 8px;
+  gap: 16px;
+  padding: 6px 4px 12px;
 }
 
 .fit-guide-carousel-track > .fit-guide-tile {
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 12px;
   width: var(--guide-card-width);
   min-width: var(--guide-card-width);
   max-width: var(--guide-card-width);
-  min-height: 104px;
+  min-height: 112px;
   height: auto;
   max-height: none;
   flex: 0 0 var(--guide-card-width) !important;
@@ -51,12 +58,13 @@
   scroll-snap-stop: always;
   border: 1px solid #29322c;
   border-radius: 14px;
-  background: transparent !important;
+  background: #191f1c !important;
+  transition: border-color 160ms ease, transform 160ms ease;
 }
 
 .fit-guide-carousel-track > .fit-guide-tile:hover {
-  border-color: #647a46;
-  background: transparent !important;
+  border-color: #a3e635;
+  background: #1d2420 !important;
 }
 
 .fit-guide-carousel-track > .fit-guide-tile:focus-visible {
@@ -64,22 +72,16 @@
   outline-offset: 2px;
 }
 
-.fit-guide-tile-image {
-  display: block;
-  width: 54px;
-  height: 54px;
-  flex: none;
-  object-fit: contain;
-}
-
 .fit-guide-carousel-track > .fit-guide-tile > svg {
-  display: none;
+  display: inline-flex;
+  flex: none;
 }
 
 .fit-guide-carousel-track > .fit-guide-tile b {
   overflow: visible;
   white-space: normal;
   text-align: center;
+  line-height: 1.3;
 }
 
 .fit-guide.expanded .fit-guide-scroller,
@@ -96,18 +98,17 @@
 
 .fit-guide.expanded .fit-guide-carousel-track > .fit-guide-tile {
   width: var(--guide-card-width);
-  min-height: 104px;
+  min-height: 112px;
   height: auto;
-  background: transparent !important;
 }
 
 .fit-guide-carousel-indicators {
   display: flex;
-  min-height: 15px;
+  min-height: 16px;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  padding: 2px 0 0;
+  gap: 6px;
+  padding: 4px 0 2px;
 }
 
 .fit-guide-carousel-dot {
@@ -128,7 +129,7 @@
 
 @media (min-width: 768px) {
   .fit-guide {
-    --guide-card-width: 148px;
+    --guide-card-width: 160px;
   }
 
   .fit-guide-heading {
@@ -140,14 +141,14 @@
 
   .fit-guide-carousel-controls {
     display: flex;
-    gap: 7px;
+    gap: 8px;
     margin-left: auto;
   }
 
   .fit-guide-carousel-arrow {
     display: grid;
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     place-items: center;
     border: 1px solid #29322c;
     border-radius: 8px;
@@ -168,13 +169,13 @@
   }
 
   .fit-guide-carousel-indicators {
-    min-height: 12px;
+    min-height: 14px;
   }
 }
 
 @media (max-width: 767px) {
   .fit-guide {
-    --guide-card-width: clamp(132px, 38vw, 150px);
+    --guide-card-width: clamp(138px, 40vw, 156px);
   }
 
   .fit-guide-heading {
@@ -182,7 +183,7 @@
   }
 
   .fit-guide-carousel-track {
-    gap: 10px;
+    gap: 14px;
   }
 
   .fit-guide-carousel-track > .fit-guide-tile {
