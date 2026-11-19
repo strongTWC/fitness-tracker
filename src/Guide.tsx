@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Activity,
   Bike,
@@ -297,6 +297,47 @@ export default function Guide({
 
   const activeSection = activeCategory?.sections[activeSectionIndex] ?? null
 
+  const exerciseCarouselItems = useMemo(
+    () => categories.flatMap((category) =>
+      category.sections.map((section, sectionIndex) => ({
+        categoryId: category.id,
+        categoryLabel: category.label,
+        section,
+        sectionIndex,
+      })),
+    ),
+    [],
+  )
+
+  const activeCarouselIndex = exerciseCarouselItems.findIndex(
+    (item) => item.section.id === activeSection?.id,
+  )
+  const carouselCardRefs = useRef<Array<HTMLButtonElement | null>>([])
+
+  useEffect(() => {
+    if (activeCarouselIndex >= 0) {
+      carouselCardRefs.current[activeCarouselIndex]?.scrollIntoView({
+        behavior: 'auto',
+        block: 'nearest',
+        inline: 'center',
+      })
+    }
+  }, [activeCarouselIndex])
+
+  function selectExerciseCard(index: number) {
+    const item = exerciseCarouselItems[index]
+    if (!item) return
+    setActiveCategoryId(item.categoryId)
+    setActiveSectionIndex(item.sectionIndex)
+  }
+
+  function moveExerciseCarousel(delta: number) {
+    if (!exerciseCarouselItems.length) return
+    const current = activeCarouselIndex >= 0 ? activeCarouselIndex : 0
+    const next = (current + delta + exerciseCarouselItems.length) % exerciseCarouselItems.length
+    selectExerciseCard(next)
+  }
+
   function openCategoryById(categoryId: string) {
     setActiveCategoryId(categoryId)
     setActiveSectionIndex(0)
@@ -406,65 +447,62 @@ export default function Guide({
       )}
 
       {activeCategory && activeSection && (
-        <section className="anatomy-detail-page" aria-label={`รายละเอียด ${activeCategory.label}`}>
-          <div className="anatomy-detail-topbar">
-            <button
-              type="button"
-              className="anatomy-back-btn"
-              onClick={returnToOverview}
-            >
-              <ChevronLeft size={17} />
-              กลับไป Gym Guide
-            </button>
-
-            <div className="anatomy-category-stepper">
-              <button
-                type="button"
-                className="anatomy-nav-btn"
-                onClick={() => stepCategory(-1)}
-                aria-label="หมวดก่อนหน้า"
-              >
-                <ChevronLeft size={16} />
-              </button>
-              <span className="anatomy-stepper-label">{activeCategory.label} · คู่มือฝึก</span>
-              <button
-                type="button"
-                className="anatomy-nav-btn"
-                onClick={() => stepCategory(1)}
-                aria-label="หมวดถัดไป"
-              >
-                <ChevronRight size={16} />
-              </button>
-            </div>
-          </div>
-
-          <header className="anatomy-detail-heading">
-            <span className="anatomy-detail-kicker">GYM GUIDE / {activeCategory.label}</span>
-            <h2>{activeSection.label}</h2>
-            <p className="anatomy-image-caption">ภาพตัวอย่างท่าเริ่มต้นและท่าสุดท้าย</p>
-          </header>
-
-          {activeCategory.sections.length > 1 && (
-            <div className="anatomy-subtabs" role="tablist" aria-label="เลือกส่วนกล้ามเนื้อ">
-              {activeCategory.sections.map((sec, idx) => (
+        <section className="anatomy-detail-page" aria-label={`Gym Guide ${activeCategory.label}`}>
+          <div className="anatomy-exercise-carousel">
+            <div className="anatomy-exercise-carousel-heading">
+              <h2>เลือกท่าฝึก</h2>
+              <div className="anatomy-carousel-controls">
                 <button
-                  key={sec.id}
                   type="button"
-                  role="tab"
-                  aria-selected={idx === activeSectionIndex}
-                  className={idx === activeSectionIndex ? 'is-active' : ''}
-                  onClick={() => setActiveSectionIndex(idx)}
+                  className="anatomy-carousel-arrow"
+                  onClick={() => moveExerciseCarousel(-1)}
+                  aria-label="การ์ดก่อนหน้า"
                 >
-                  {sec.label}
+                  <ChevronLeft size={18} />
+                </button>
+                <button
+                  type="button"
+                  className="anatomy-carousel-arrow"
+                  onClick={() => moveExerciseCarousel(1)}
+                  aria-label="การ์ดถัดไป"
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+            </div>
+
+            <div className="anatomy-exercise-track" role="list" aria-label="เลือกท่าฝึก">
+              {exerciseCarouselItems.map((item, index) => (
+                <button
+                  key={item.section.id}
+                  ref={(element) => { carouselCardRefs.current[index] = element }}
+                  type="button"
+                  role="listitem"
+                  className={`anatomy-exercise-card ${item.section.id === activeSection.id ? 'is-active' : ''}`}
+                  onClick={() => selectExerciseCard(index)}
+                  aria-pressed={item.section.id === activeSection.id}
+                >
+                  <span className="anatomy-exercise-card-image">
+                    <img src={item.section.imageSrc} alt="" loading="lazy" decoding="async" />
+                  </span>
+                  <span className="anatomy-exercise-card-copy">
+                    <small>{item.categoryLabel}</small>
+                    <b>{item.section.label}</b>
+                  </span>
                 </button>
               ))}
             </div>
-          )}
+          </div>
 
-          <div className="anatomy-layout">
-            <div className="anatomy-diagram-wrap">
+          <div className="anatomy-selected-exercise" aria-live="polite">
+            <div className="anatomy-selected-heading">
+              <small>{activeCategory.label}</small>
+              <h2>{activeSection.label}</h2>
+            </div>
+
+            <div className="anatomy-selected-image">
               <img
-                className="anatomy-muscle-image"
+                key={activeSection.id}
                 src={activeSection.imageSrc}
                 alt={`ภาพตัวอย่างท่าฝึก: ${activeSection.label}`}
                 loading="lazy"
@@ -476,8 +514,8 @@ export default function Guide({
               <section className="anatomy-box">
                 <h3>ท่าแนะนำ</h3>
                 <ul>
-                  {activeSection.exercises.map((ex) => (
-                    <li key={ex}>{ex}</li>
+                  {activeSection.exercises.map((exercise) => (
+                    <li key={exercise}>{exercise}</li>
                   ))}
                 </ul>
               </section>
@@ -494,6 +532,7 @@ export default function Guide({
           </div>
         </section>
       )}
+
     </section>
   )
 }

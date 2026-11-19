@@ -443,7 +443,7 @@ function App() {
           </section>
         )}
 
-        {view === 'guide' && <section className="fit-guide-screen"><Guide initialCategoryId={pendingGuideCategoryId} onDetailClose={clearPendingGuideCategory} /></section>}
+        {view === 'guide' && <section className="fit-guide-screen"><Guide initialCategoryId={pendingGuideCategoryId || 'chest'} /></section>}
         {view === 'profile' && (
           <section className="fit-secondary-view">
             <div className="fit-eyebrow"><span /> YOUR PROFILE</div>
