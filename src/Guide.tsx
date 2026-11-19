@@ -14,6 +14,7 @@ import {
   X,
   Zap,
 } from 'lucide-react'
+import './gym-guide.css'
 import './guide-anatomy.css'
 
 export interface GuideSection {
