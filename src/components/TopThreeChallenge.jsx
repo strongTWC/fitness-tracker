@@ -1,10 +1,5 @@
 import React from 'react'
-import './TopThreeChallenge.css'
 
-/**
- * Shows the three highest-scoring players.
- * @param {{ players?: Array<{ id?: string, name: string, gym: string, pts: number, isMe?: boolean, avatarUrl?: string }> }} props
- */
 export default function TopThreeChallenge({ players = [] }) {
   const topPlayers = [...players]
     .sort((a, b) => {

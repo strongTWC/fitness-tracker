@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react'
-import { Activity, ArrowDownRight, ArrowUpRight, Check, ChevronDown, Clock3, Dumbbell, Flame, LocateFixed, MapPin, Search, Target, Zap } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { Activity, ArrowUpRight, Check, ChevronDown, Clock3, Dumbbell, Flame, LocateFixed, MapPin, Search, Target, Zap } from 'lucide-react'
 import TopThreeChallenge from './components/TopThreeChallenge'
 import './geolocation.css'
 import './gym-filters.css'
+import './challenge-home.css'
 
 const CHECKINS_KEY = 'fitcheck-checkins-v1'
 const CHALLENGE_PLAYERS_KEY = 'fitcheck-challenge-players-v1'
@@ -71,6 +72,15 @@ function App() {
   const [challengePlayers, setChallengePlayers] = useState(() => readLocalArray(CHALLENGE_PLAYERS_KEY, initialChallengePlayers))
   const [notice, setNotice] = useState('')
   const [geoError, setGeoError] = useState(null)
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CHALLENGE_PLAYERS_KEY, JSON.stringify(challengePlayers))
+    } catch {
+      setNotice('บันทึกคะแนน challenge ในเบราว์เซอร์ไม่ได้ พื้นที่จัดเก็บอาจเต็มหรือถูกปิดใช้งาน')
+    }
+  }, [challengePlayers])
+
   const places = useMemo(() => gyms.map((gym) => ({
     ...gym,
     distanceKm: position ? distanceBetween(position.lat, position.lng, gym.lat, gym.lng) : null,
@@ -193,7 +203,7 @@ function App() {
             <div className="welcome-row"><div><div className="eyebrow"><span className="live-dot" /> YOUR WORKOUT HISTORY</div><h1>กิจกรรมของฉัน</h1><p className="subtitle">ประวัติการเช็คอินที่เก็บไว้ใน localStorage ของเบราว์เซอร์นี้</p></div><div className="date-chip"><span className="date-icon"><Activity size={17} /></span><span><b>{checkins.length} ครั้ง</b><small>ประวัติทั้งหมด</small></span></div></div>
             <section className="stats-row" aria-label="สรุปกิจกรรม"><article className="stat-card"><span className="stat-icon yellow"><Zap size={17} fill="currentColor" /></span><div className="stat-label">คะแนนที่ได้รับ</div><div className="stat-value">{totalPoints}<small> pts</small></div><div className="stat-foot">จากรายการเช็คอิน</div></article><article className="stat-card"><span className="stat-icon green"><MapPin size={17} /></span><div className="stat-label">เช็คอินเดือนนี้</div><div className="stat-value">{monthlyCheckins}<small> ครั้ง</small></div><div className="stat-foot">เดือนปัจจุบัน</div></article><article className="stat-card"><span className="stat-icon orange"><Dumbbell size={17} /></span><div className="stat-label">สาขาที่เคยไป</div><div className="stat-value">{new Set(checkins.map((entry) => entry.gymId)).size}<small> แห่ง</small></div><div className="stat-foot">ไม่ซ้ำกัน</div></article></section>
             <div className="activity-heading page-activity-heading"><div><div className="eyebrow">CHECK-IN HISTORY</div><h2>ประวัติการเช็คอิน</h2></div><button className="location-button" onClick={() => setPage('checkin')}><MapPin size={15} /> เลือกยิม</button></div>
-            {checkins.length ? <div className="checkin-history">{checkins.map((entry) => <article className="history-item" key={entry.id}><span className="activity-mark"><Dumbbell size={17} /></span><span className="history-main"><b>{entry.gymName}</b><small><Clock3 size={12} /> {formatDate(entry.timestamp)}</small></span><span className="history-distance"><MapPin size={13} /> {entry.distance || '���ม่ได้ระบุ (ไม่มีพิกัด)'}</span><span className="points">+{entry.points} pts</span></article>)}</div> : <div className="activity-empty"><span><Activity size={23} /></span><b>ยังไม่มีประวัติการเช็คอิน</b><p>รายการชื่อยิม ระยะทาง เวลา และคะแนนจะปรากฏที่นี่หลังเช็คอิน</p><button className="checkin-button" onClick={() => setPage('checkin')}>เลือกยิมใกล้ฉัน <ArrowUpRight size={16} /></button></div>}
+            {checkins.length ? <div className="checkin-history">{checkins.map((entry) => <article className="history-item" key={entry.id}><span className="activity-mark"><Dumbbell size={17} /></span><span className="history-main"><b>{entry.gymName}</b><small><Clock3 size={12} /> {formatDate(entry.timestamp)}</small></span><span className="history-distance"><MapPin size={13} /> {entry.distance || 'ไม่ได้ระบุ (ไม่มีพิกัด)'}</span><span className="points">+{entry.points} pts</span></article>)}</div> : <div className="activity-empty"><span><Activity size={23} /></span><b>ยังไม่มีประวัติการเช็คอิน</b><p>รายการชื่อยิม ระยะทาง เวลา และคะแนนจะปรากฏที่นี่หลังเช็คอิน</p><button className="checkin-button" onClick={() => setPage('checkin')}>เลือกยิมใกล้ฉัน <ArrowUpRight size={16} /></button></div>}
             <footer className="footer-note"><Clock3 size={13} /> บันทึกในเบราว์เซอร์เครื่องนี้เท่านั้น <span>·</span> <b>เช็คอินได้แม้ปิดการระบุตำแหน่ง</b></footer>
           </section>}
         </div>
