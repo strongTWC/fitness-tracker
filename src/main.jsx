@@ -7,6 +7,8 @@ import './profile-activity.css'
 import './combo-copy.css'
 import './guide-carousel.css'
 import './guide-carousel.js'
+import './guide-detail.css'
+import './guide-detail.js'
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
