@@ -1,0 +1,66 @@
+.fit-guide-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.fit-guide-heading > div {
+  min-width: 0;
+}
+
+.fit-guide-heading h2 {
+  margin: 5px 0 0;
+}
+
+.fit-guide-more {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  white-space: nowrap;
+  line-height: 1.25;
+}
+
+.fit-guide-more span {
+  display: inline-block;
+  margin: 0;
+  line-height: inherit;
+}
+
+.fit-guide-backdrop {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow-y: auto;
+  padding: clamp(12px, 3vw, 32px);
+  background: rgba(0, 0, 0, 0.82);
+}
+
+.fit-guide-modal.anatomy-modal {
+  box-sizing: border-box;
+  width: min(920px, 100%);
+  max-height: calc(100dvh - 2 * clamp(12px, 3vw, 32px));
+  overflow-y: auto;
+  margin: auto;
+}
+
+@media (max-width: 767px) {
+  .fit-guide-heading {
+    gap: 8px;
+  }
+
+  .fit-guide-more {
+    gap: 4px;
+    padding-inline: 8px;
+  }
+
+  .fit-guide-modal.anatomy-modal {
+    width: 100%;
+    max-height: calc(100dvh - 24px);
+  }
+}
