@@ -21,6 +21,7 @@ export interface GuideSection {
   id: string
   label: string
   zone: string
+  imageSrc: string
   exercises: string[]
   tips: string[]
 }
@@ -44,6 +45,7 @@ const categories: GuideCategory[] = [
         id: 'upper-chest',
         label: 'อกบน (Upper Chest)',
         zone: 'upperChest',
+        imageSrc: '/gym-guide/chest.webp',
         exercises: ['Incline Dumbbell Press — 3 × 8–12', 'Incline Push-up — 3 × 10–15'],
         tips: [
           'ปรับม้านั่งเอียงประมาณ 15–30° และเก็บสะบัก',
@@ -55,6 +57,7 @@ const categories: GuideCategory[] = [
         id: 'lower-chest',
         label: 'อกล่าง (Lower Chest)',
         zone: 'lowerChest',
+        imageSrc: '/gym-guide/chest.webp',
         exercises: ['Decline Push-up — 3 × 8–15', 'Chest Dip — 3 × 6–10'],
         tips: [
           'เอนตัวไปข้างหน้าเล็กน้อยระหว่างดัน',
@@ -74,6 +77,7 @@ const categories: GuideCategory[] = [
         id: 'front-side-delts',
         label: 'ไหล่หน้า/ข้าง (Front/Side Delts)',
         zone: 'frontDelts',
+        imageSrc: '/gym-guide/shoulders.webp',
         exercises: ['Dumbbell Shoulder Press — 3 × 8–12', 'Lateral Raise — 3 × 12–15'],
         tips: [
           'เกร็งลำตัวและไม่แอ่นหลัง',
@@ -85,6 +89,7 @@ const categories: GuideCategory[] = [
         id: 'rear-delts',
         label: 'ไหล่หลัง (Rear Delts)',
         zone: 'rearDelts',
+        imageSrc: '/gym-guide/shoulders.webp',
         exercises: ['Face Pull — 3 × 12–15', 'Reverse Fly — 3 × 10–15'],
         tips: [
           'เริ่มจากสะบักและกางแขนอย่างควบคุม',
@@ -104,6 +109,7 @@ const categories: GuideCategory[] = [
         id: 'upper-back',
         label: 'หลังบน (Upper Back/Lats)',
         zone: 'upperBack',
+        imageSrc: '/gym-guide/back.webp',
         exercises: ['Lat Pulldown — 3 × 8–12', 'Seated Cable Row — 3 × 8–12'],
         tips: [
           'ดึงศอกลงหรือไปด้านหลัง ไม่กระชากด้วยมือ',
@@ -115,6 +121,7 @@ const categories: GuideCategory[] = [
         id: 'lower-back',
         label: 'หลังล่าง (Lower Back)',
         zone: 'lowerBack',
+        imageSrc: '/gym-guide/back.webp',
         exercises: ['Bird Dog — 3 × 8/ข้าง', 'Hip Hinge Drill — 3 × 10'],
         tips: [
           'เคลื่อนไหวจากสะโพกและคงหลังเป็นกลาง',
@@ -134,6 +141,7 @@ const categories: GuideCategory[] = [
         id: 'biceps',
         label: 'หน้าแขน (Biceps)',
         zone: 'biceps',
+        imageSrc: '/gym-guide/biceps.webp',
         exercises: ['Dumbbell Bicep Curl — 3 × 10–12', 'Hammer Curl — 3 × 10–12'],
         tips: [
           'ตรึงต้นศอกให้อยู่ข้างลำตัวตลอดการงอ',
@@ -145,6 +153,7 @@ const categories: GuideCategory[] = [
         id: 'triceps',
         label: 'หลังแขน (Triceps)',
         zone: 'triceps',
+        imageSrc: '/gym-guide/triceps.webp',
         exercises: ['Cable Tricep Pushdown — 3 × 10–15', 'Overhead Tricep Extension — 3 × 10–12'],
         tips: [
           'เหยียดศอกจนสุดโดยไม่ขยับต้นแขนไปมา',
@@ -164,6 +173,7 @@ const categories: GuideCategory[] = [
         id: 'quads-glutes',
         label: 'ต้นขาด้านหน้า & สะโพก (Quads & Glutes)',
         zone: 'quads',
+        imageSrc: '/gym-guide/legs-calves.webp',
         exercises: ['Goblet Squat — 3 × 8–12', 'Glute Bridge — 3 × 12–15'],
         tips: [
           'ลงน้ำหนักเต็มเท้าและเข่าเปิดตามแนวปลายเท้า',
@@ -175,6 +185,7 @@ const categories: GuideCategory[] = [
         id: 'hamstrings-calves',
         label: 'ต้นขาด้านหลัง & น่อง (Hamstrings & Calves)',
         zone: 'hamstrings',
+        imageSrc: '/gym-guide/legs-calves.webp',
         exercises: ['Romanian Deadlift — 3 × 8–12', 'Standing Calf Raise — 3 × 12–15'],
         tips: [
           'ดันสะโพกไปด้านหลังพร้อมคงหลังตรง',
@@ -194,6 +205,7 @@ const categories: GuideCategory[] = [
         id: 'core-abs',
         label: 'หน้าท้อง & แกนกลาง (Core & Abs)',
         zone: 'abs',
+        imageSrc: '/gym-guide/abs.webp',
         exercises: ['Dead Bug — 3 × 8–10/ข้าง', 'Plank — 3 × 30–45 วิ'],
         tips: [
           'กดหลังล่างให้แนบพื้นระหว่างขยับแขนขา',
@@ -213,6 +225,7 @@ const categories: GuideCategory[] = [
         id: 'cardio-session',
         label: 'คาร์ดิโอ (Cardio)',
         zone: 'cardio',
+        imageSrc: '/gym-guide/cardio.webp',
         exercises: ['Treadmill / Bike Steady State — 20–30 นาที', 'Interval Session — 15–20 นาที'],
         tips: [
           'วอร์มอัป 5 นาทีและคูลดาวน์ 5 นาทีทุกครั้ง',
@@ -232,6 +245,7 @@ const categories: GuideCategory[] = [
         id: 'yoga-class',
         label: 'โยคะ (Yoga)',
         zone: 'yoga',
+        imageSrc: '/gym-guide/yoga.webp',
         exercises: ['Sun Salutation Flow — 10–15 นาที', 'Mobility & Stretch — 15–20 นาที'],
         tips: [
           'หายใจเข้า-ออกให้สัมพันธ์กับการเคลื่อนไหว',
@@ -243,65 +257,10 @@ const categories: GuideCategory[] = [
   },
 ]
 
-function AnatomyDiagram({
-  label,
-  viewMode,
-  zone,
-}: {
-  label: string
-  viewMode: 'front' | 'back'
-  zone: string
-}) {
-  return (
-    <div className="anatomy-diagram-wrap" aria-label={label}>
-      <svg className="anatomy-svg" viewBox="0 0 220 320" role="img" aria-label={label}>
-        <circle cx="110" cy="36" r="20" className="anatomy-body" />
-        <path
-          d="M72 72 Q110 58 148 72 L162 125 L138 132 L134 195 L86 195 L82 132 L58 125 Z"
-          className={`anatomy-body ${viewMode === 'front' ? 'is-front' : 'is-back'}`}
-        />
-        <path
-          d="M58 76 L34 145 L48 152 L72 95 Z M162 76 L186 145 L172 152 L148 95 Z"
-          className={`anatomy-body ${zone === 'frontDelts' || zone === 'rearDelts' || zone === 'biceps' || zone === 'triceps' ? 'anatomy-highlight' : ''}`}
-        />
-        <path
-          d="M88 195 L82 302 L103 302 L108 212 L112 212 L117 302 L138 302 L132 195 Z"
-          className={`anatomy-body ${zone === 'quads' || zone === 'hamstrings' ? 'anatomy-highlight' : ''}`}
-        />
-        <rect
-          x="84"
-          y="76"
-          width="52"
-          height="32"
-          rx="8"
-          className={
-            zone === 'upperChest' || zone === 'lowerChest' || zone === 'upperBack'
-              ? 'anatomy-highlight-fill'
-              : 'anatomy-subtle-fill'
-          }
-        />
-        <rect
-          x="92"
-          y="114"
-          width="36"
-          height="58"
-          rx="8"
-          className={
-            zone === 'abs' || zone === 'lowerBack' || zone === 'cardio' || zone === 'yoga'
-              ? 'anatomy-highlight-fill'
-              : 'anatomy-subtle-fill'
-          }
-        />
-      </svg>
-    </div>
-  )
-}
-
 export default function Guide() {
   const [query, setQuery] = useState('')
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null)
   const [activeSectionIndex, setActiveSectionIndex] = useState(0)
-  const [viewMode, setViewMode] = useState<'front' | 'back'>('front')
 
   const filteredCategories = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -331,7 +290,6 @@ export default function Guide() {
   function openCategoryById(categoryId: string) {
     setActiveCategoryId(categoryId)
     setActiveSectionIndex(0)
-    setViewMode('front')
   }
 
   function closeModal() {
@@ -380,7 +338,7 @@ export default function Guide() {
 
       <div className="gym-guide-group">
         <h3 className="gym-guide-group-title">กลุ่มกล้ามเนื้อหลัก</h3>
-        <div className="gym-guide-grid" role="list">
+        <div className="gym-guide-grid" role="list" aria-label="เลือกกลุ่มกล้ามเนื้อ" tabIndex={0}>
           {muscleCategories.map((cat) => {
             const IconComponent = cat.icon
             return (
@@ -399,11 +357,12 @@ export default function Guide() {
             )
           })}
         </div>
+        <p className="gym-guide-carousel-hint">ปัดเพื่อดูหมวดหมู่เพิ่มเติม</p>
       </div>
 
       <div className="gym-guide-group">
         <h3 className="gym-guide-group-title">กิจกรรม &amp; คลาส</h3>
-        <div className="gym-guide-pills" role="list">
+        <div className="gym-guide-pills" role="list" aria-label="กิจกรรมและคลาส" tabIndex={0}>
           {activityCategories.map((cat) => {
             const IconComponent = cat.icon
             return (
@@ -420,6 +379,7 @@ export default function Guide() {
             )
           })}
         </div>
+        <p className="gym-guide-carousel-hint">ปัดเพื่อดูกิจกรรมเพิ่มเติม</p>
       </div>
 
       {activeCategory && activeSection && (
@@ -449,22 +409,7 @@ export default function Guide() {
               </div>
 
               <div className="anatomy-modal-actions">
-                <div className="anatomy-view-toggle" role="group" aria-label="มุมมองด้านหน้าและด้านหลัง">
-                  <button
-                    type="button"
-                    className={viewMode === 'front' ? 'is-active' : ''}
-                    onClick={() => setViewMode('front')}
-                  >
-                    ด้านหน้า
-                  </button>
-                  <button
-                    type="button"
-                    className={viewMode === 'back' ? 'is-active' : ''}
-                    onClick={() => setViewMode('back')}
-                  >
-                    ด้านหลัง
-                  </button>
-                </div>
+                <span className="anatomy-image-caption">ภาพตัวอย่างท่าเริ่มต้นและท่าสุดท้าย</span>
                 <button
                   type="button"
                   className="anatomy-close-btn"
@@ -492,7 +437,13 @@ export default function Guide() {
             )}
 
             <div className="anatomy-layout">
-              <AnatomyDiagram label={activeSection.label} viewMode={viewMode} zone={activeSection.zone} />
+              <img
+                className="anatomy-muscle-image"
+                src={activeSection.imageSrc}
+                alt={`ภาพตัวอย่างท่าฝึก: ${activeSection.label}`}
+                loading="lazy"
+                decoding="async"
+              />
 
               <div className="anatomy-content">
                 <section className="anatomy-box">
