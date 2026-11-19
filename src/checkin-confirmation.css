@@ -1,3 +1,16 @@
-/* Check-in selection and confirmation modal */
-.fit-gym-selected{min-width:0}.fit-gym-selected-copy{flex:1;min-width:0}.fit-gym-selected-copy>span:last-child{min-width:0}.fit-gym-selected-copy small,.fit-gym-selected-copy b{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.45}.fit-gym-selected-copy small:first-child{margin-bottom:2px}.fit-primary-checkin{transition:background .15s,color .15s,border-color .15s,opacity .15s}.fit-primary-checkin.disabled,.fit-primary-checkin:disabled{border:1px solid #3f3f46;background:transparent;color:#71717a;cursor:not-allowed;opacity:1}.fit-primary-checkin.ready{border:1px solid #a3e635;background:#a3e635;color:#09090b;cursor:pointer}.fit-primary-checkin.ready:hover{background:#b4f34b}.fit-row-checkin{background:#182216;color:#a3e635;border:1px solid #394833;border-radius:5px;padding:5px 9px;font-size:8px;font-weight:700;cursor:pointer}.fit-row-checkin:hover{border-color:#a3e635;background:#26351d}.fit-confirm-backdrop{position:fixed;z-index:100;inset:0;display:grid;place-items:center;padding:18px;background:#000b;backdrop-filter:blur(5px)}.fit-confirm-modal{width:min(100%,410px);padding:20px;border:1px solid #394735;border-radius:15px;background:#141816;color:#eff3ea;box-shadow:0 20px 70px #000b}.fit-confirm-icon{display:grid;width:42px;height:42px;place-items:center;border:1px solid #4d6338;border-radius:12px;background:#182216;color:#a3e635}.fit-confirm-modal h2{margin:13px 0 7px;font-size:16px;line-height:1.55}.fit-confirm-modal>p{margin:0;color:#9aa596;font-size:10px;line-height:1.6}.fit-confirm-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.fit-confirm-actions button{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:7px;padding:9px 12px;font-size:10px;font-weight:700;cursor:pointer}.fit-confirm-cancel{border:1px solid #41464a;background:#202326;color:#c5c9c4}.fit-confirm-submit{border:1px solid #a3e635;background:#a3e635;color:#11140e}.fit-confirm-submit:hover{background:#b4f34b}
-@media(max-width:767px){.fit-confirm-modal{padding:16px}.fit-confirm-actions button{flex:1}.fit-gym-selected-copy b{font-size:8px}}
+/* Smartphone layout overrides (320–430px): keep four tabs on one line and respect safe areas. */
+.fit-app{min-height:100vh;min-height:100dvh}
+.fit-main{min-height:100vh;min-height:100dvh}
+.fit-gym-selected-copy>span:last-child{display:grid;align-content:center;gap:4px;min-width:0}
+.fit-gym-selected-copy small:first-child{margin:0;line-height:1.35}
+.fit-gym-selected-copy b{line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:767px){
+  .fit-app{min-height:100dvh}
+  .fit-main{min-height:100dvh}
+  .fit-content{padding-bottom:calc(6rem + env(safe-area-inset-bottom))}
+  .fit-mobile-nav{grid-template-columns:repeat(4,minmax(0,1fr));padding-bottom:max(.5rem,env(safe-area-inset-bottom))}
+  .fit-mobile-nav button,.fit-mobile-nav a{min-width:0;white-space:nowrap}
+  .fit-mobile-nav button span,.fit-mobile-nav a span{font-size:11px;line-height:1.2;white-space:nowrap}
+  .fit-gym-selected{gap:6px}
+  .fit-gym-selected-copy{gap:6px}
+}
