@@ -17,7 +17,7 @@ import {
 import './gym-guide.css'
 import './guide-anatomy.css'
 
-const gymImage = (fileName: string) => `${import.meta.env.DEV ? '/' : import.meta.env.BASE_URL}gym-guide/${fileName}`
+const gymImage = (fileName: string) => `${import.meta.env.BASE_URL}gym-guide/${fileName}`
 
 export interface GuideSection {
   id: string
