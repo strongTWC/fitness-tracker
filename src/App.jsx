@@ -1,82 +1,151 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Activity, ArrowDownRight, ArrowUpRight, Check, ChevronDown, Clock3, Dumbbell, Footprints, Flame, LocateFixed, MapPin, Search, Sparkles, Target, Zap } from 'lucide-react'
 
-const places = [
-  { id: 1, name: 'The Lab Fitness', type: 'ฟิตเนส · เวทเทรนนิ่ง', distance: '0.4 กม.', address: 'สยามสแควร์ ซอย 7', color: 'lime', icon: Dumbbell, members: 'เปิดอยู่ · ปิด 22:00' },
-  { id: 2, name: 'สวนลุมพินี', type: 'สวนสาธารณะ · วิ่ง', distance: '1.2 กม.', address: 'ถนนพระราม 4 แขวงลุมพินี', color: 'mint', icon: Footprints, members: 'เปิด 24 ชั่วโมง' },
-  { id: 3, name: 'BASE Bangkok', type: 'ฟิตเนส · คลาสออกกำลังกาย', distance: '1.8 กม.', address: 'อาคารเกษร ทาวเวอร์', color: 'peach', icon: Activity, members: 'เปิดอยู่ · ปิด 21:00' },
+const CHECKINS_KEY = 'fitcheck-checkins-v1'
+const gyms = [
+  { id: 'lab', name: 'The Lab Fitness', type: 'ฟิตเนส · เวทเทรนนิ่ง', address: 'สยามสแควร์ ซอย 7', color: 'lime', icon: Dumbbell, hours: 'เปิดอยู่ · ปิด 22:00', lat: 13.7441, lng: 100.5331 },
+  { id: 'lumpini', name: 'สวนลุมพินี', type: 'สวนสาธารณะ · วิ่ง', address: 'ถนนพระราม 4 แขวงลุมพินี', color: 'mint', icon: Footprints, hours: 'เปิด 24 ชั่วโมง', lat: 13.7314, lng: 100.5417 },
+  { id: 'base', name: 'BASE Bangkok', type: 'ฟิตเนส · คลาสออกกำลังกาย', address: 'อาคารเกษร ทาวเวอร์', color: 'peach', icon: Activity, hours: 'เปิดอยู่ · ปิด 21:00', lat: 13.7442, lng: 100.5394 },
 ]
 
-const initialActivity = [
-  { place: 'สวนลุมพินี', activity: 'วิ่ง · 3.2 กม.', time: 'เมื่อวาน, 07:15', points: '+20' },
-  { place: 'The Lab Fitness', activity: 'เวทเทรนนิ่ง', time: 'จันทร์, 18:42', points: '+20' },
-]
+function readCheckins() {
+  try {
+    const stored = localStorage.getItem(CHECKINS_KEY)
+    const records = stored ? JSON.parse(stored) : []
+    return Array.isArray(records) ? records : []
+  } catch {
+    return []
+  }
+}
+
+function distanceBetween(lat1, lng1, lat2, lng2) {
+  const radians = (degrees) => degrees * Math.PI / 180
+  const earthRadiusKm = 6371
+  const dLat = radians(lat2 - lat1)
+  const dLng = radians(lng2 - lng1)
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(radians(lat1)) * Math.cos(radians(lat2)) * Math.sin(dLng / 2) ** 2
+  return earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+}
+
+function formatDistance(km) {
+  return km < 1 ? `${Math.round(km * 1000)} ม.` : `${km.toFixed(1)} กม.`
+}
+
+function formatDate(value) {
+  return new Date(value).toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' })
+}
 
 function App() {
-  const [selected, setSelected] = useState(1)
-  const [checkedIn, setCheckedIn] = useState(false)
+  const [page, setPage] = useState('checkin')
+  const [position, setPosition] = useState(null)
+  const [locating, setLocating] = useState(false)
   const [query, setQuery] = useState('')
-  const [activity, setActivity] = useState(initialActivity)
+  const [checkins, setCheckins] = useState(readCheckins)
   const [notice, setNotice] = useState('')
+  const places = useMemo(() => gyms.map((gym) => ({
+    ...gym,
+    distanceKm: position ? distanceBetween(position.lat, position.lng, gym.lat, gym.lng) : null,
+  })).sort((a, b) => {
+    if (a.distanceKm === null) return 0
+    return a.distanceKm - b.distanceKm
+  }), [position])
   const filteredPlaces = places.filter((place) => `${place.name} ${place.type} ${place.address}`.toLowerCase().includes(query.toLowerCase()))
-  const selectedPlace = places.find((place) => place.id === selected)
-  const totalPoints = 340 + (activity.length - initialActivity.length) * 20
+  const monthlyCheckins = checkins.filter((entry) => {
+    const date = new Date(entry.timestamp)
+    const now = new Date()
+    return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()
+  }).length
+  const totalPoints = checkins.reduce((sum, entry) => sum + (Number(entry.points) || 0), 0)
 
-  function checkIn() {
-    if (checkedIn) return
-    const now = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
-    setActivity([{ place: selectedPlace.name, activity: 'เช็คอิน · ออกกำลังกาย', time: `วันนี้, ${now}`, points: '+20' }, ...activity])
-    setCheckedIn(true)
-    setNotice(`เช็คอินที่ ${selectedPlace.name} สำเร็จ! รับ 20 คะแนนแล้ว`)
+  function persistCheckins(nextCheckins) {
+    setCheckins(nextCheckins)
+    try {
+      localStorage.setItem(CHECKINS_KEY, JSON.stringify(nextCheckins))
+    } catch {
+      setNotice('บันทึกในเบราว์เซอร์ไม่ได้ พื้นที่จัดเก็บอาจเต็มหรือถูกปิดใช้งาน')
+    }
   }
 
   function locateMe() {
     if (!navigator.geolocation) {
-      setNotice('อุปกรณ์นี้ไม่รองรับการระบุตำแหน่ง')
+      setNotice('เบราว์เซอร์นี้ไม่รองรับการระบุตำแหน่ง')
       return
     }
+    setLocating(true)
     setNotice('กำลังค้นหาตำแหน่งของคุณ…')
     navigator.geolocation.getCurrentPosition(
-      () => setNotice('พบตำแหน่งของคุณแล้ว — แสดงสถานที่ใกล้เคียง'),
-      () => setNotice('ไม่สามารถเข้าถึงตำแหน่งได้ ลองอนุญาต Location ในเบราว์เซอร์'),
-      { timeout: 8000 },
+      ({ coords }) => {
+        setPosition({ lat: coords.latitude, lng: coords.longitude })
+        setLocating(false)
+        setNotice('พบตำแหน่งแล้ว — เรียงสถานที่จากใกล้ไปไกล')
+      },
+      (error) => {
+        setLocating(false)
+        const message = error.code === error.PERMISSION_DENIED
+          ? 'ไม่ได้รับอนุญาตให้ใช้ตำแหน่ง โปรดอนุญาต Location ในเบราว์เซอร์'
+          : error.code === error.TIMEOUT
+            ? 'ค้นหาตำแหน่งไม่ทันเวลา ลองอีกครั้ง'
+            : 'ไม่สามารถระบุตำแหน่งได้ โปรดลองอีกครั้ง'
+        setNotice(message)
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 },
     )
+  }
+
+  function checkIn(place) {
+    if (!position || place.distanceKm === null) {
+      setNotice('กรุณาใช้ตำแหน่งของคุณก่อนเช็คอิน เพื่อคำนวณระยะทางจริง')
+      return
+    }
+    const entry = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      gymId: place.id,
+      gymName: place.name,
+      distanceKm: Number(place.distanceKm.toFixed(3)),
+      distance: formatDistance(place.distanceKm),
+      timestamp: new Date().toISOString(),
+      points: 20,
+    }
+    persistCheckins([entry, ...checkins])
+    setNotice(`เช็คอินที่ ${place.name} สำเร็จ! รับ 20 คะแนนแล้ว`)
   }
 
   return (
     <main className="app-shell">
       <aside className="sidebar">
-        <a className="brand" href="#home" aria-label="FitCheck หน้าแรก"><span className="brand-mark"><Activity size={21} strokeWidth={2.6} /></span><span>fitcheck<span className="brand-dot">.</span></span></a>
+        <a className="brand" href="#home" onClick={() => setPage('checkin')} aria-label="FitCheck หน้าแรก"><span className="brand-mark"><Activity size={21} strokeWidth={2.6} /></span><span>fitcheck<span className="brand-dot">.</span></span></a>
         <div className="side-label">เมนูหลัก</div>
         <nav className="nav-links" aria-label="เมนูหลัก">
-          <a className="nav-item active" href="#checkin"><MapPin size={18} /> เช็คอิน <span className="nav-indicator" /></a>
-          <a className="nav-item" href="#activity"><Activity size={18} /> กิจกรรมของฉัน</a>
+          <button className={`nav-item ${page === 'checkin' ? 'active' : ''}`} onClick={() => setPage('checkin')}><MapPin size={18} /> เช็คอิน {page === 'checkin' && <span className="nav-indicator" />}</button>
+          <button className={`nav-item ${page === 'activity' ? 'active' : ''}`} onClick={() => setPage('activity')}><Activity size={18} /> กิจกรรมของฉัน {page === 'activity' && <span className="nav-indicator" />}</button>
           <a className="nav-item" href="#progress"><Target size={18} /> สถิติและเป้าหมาย</a>
           <a className="nav-item" href="#guide"><Dumbbell size={18} /> คู่มือออกกำลังกาย</a>
         </nav>
         <div className="sidebar-spacer" />
-        <div className="streak-card"><div className="streak-icon"><Flame size={18} fill="currentColor" /></div><div><strong>รักษา streak ไว้!</strong><p>เช็คอินวันนี้เพื่อทำต่อเนื่อง</p></div><div className="streak-days"><b>4</b><span>วัน</span></div></div>
-        <button className="profile"><span className="avatar">T</span><span class="profile-copy"><b>Tanawat</b><small>สมาชิก FitCheck</small></span><ChevronDown size={16} /></button>
+        <div className="streak-card"><div className="streak-icon"><Flame size={18} fill="currentColor" /></div><div><strong>เช็คอินเดือนนี้</strong><p>สะสมทุกครั้งที่มาออกกำลังกาย</p></div><div className="streak-days"><b>{monthlyCheckins}</b><span>ครั้ง</span></div></div>
+        <button className="profile"><span className="avatar">T</span><span className="profile-copy"><b>Tanawat</b><small>สมาชิก FitCheck</small></span><ChevronDown size={16} /></button>
       </aside>
 
       <section className="main-content" id="home">
-        <header className="topbar"><div className="breadcrumb">หน้าหลัก <span>/</span> <b>เช็คอิน</b></div><div className="topbar-right"><span className="today-label">วันพุธที่ 18 พฤศจิกายน 2569</span><span className="avatar small">T</span></div></header>
-        <div className="content-wrap" id="checkin">
-          <div className="welcome-row"><div><div className="eyebrow"><span className="live-dot" /> YOUR DAILY MOVEMENT</div><h1>วันนี้ไปขยับ<br className="mobile-break" />ร่างกายที่ไหน? <span className="title-spark">✳</span></h1><p className="subtitle">เลือกสถานที่ออกกำลังกายใกล้คุณ แล้วเช็คอินเพื่อเก็บคะแนน</p></div><div className="date-chip"><span className="date-icon">18</span><span><b>พฤศจิกายน</b><small>วันพุธ · สัปดาห์ที่ 47</small></span></div></div>
-
-          <section className="stats-row" aria-label="สรุปกิจกรรม"><article className="stat-card"><span className="stat-icon yellow"><Zap size={17} fill="currentColor" /></span><div className="stat-label">คะแนนสะสม</div><div className="stat-value">{totalPoints}<small> pts</small></div><div className="stat-foot"><span className="trend"><ArrowUpRight size={14} /> 12%</span> จากเดือนที่แล้ว</div></article><article className="stat-card"><span className="stat-icon green"><MapPin size={17} /></span><div className="stat-label">เช็คอินเดือนนี้</div><div className="stat-value">12<small> ครั้ง</small></div><div className="stat-foot">เป้าหมาย <b>15 ครั้ง</b></div></article><article className="stat-card"><span className="stat-icon orange"><Flame size={17} /></span><div className="stat-label">สถิติต่อเนื่อง</div><div className="stat-value">4<small> วัน</small></div><div className="stat-foot">ทำได้ดีมาก รักษาไว้นะ!</div></article></section>
-
-          <div className="section-heading"><div><div className="eyebrow">FIND YOUR SPOT</div><h2>สถานที่ใกล้คุณ <span className="nearby-count">{filteredPlaces.length}</span></h2></div><button className="location-button" onClick={locateMe}><LocateFixed size={16} /> ใช้ตำแหน่งของฉัน</button></div>
-          <div className="search-row"><label className="search-box"><Search size={17} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ค้นหาฟิตเนส สวนสาธารณะ..." aria-label="ค้นหาสถานที่" /><kbd>⌘ K</kbd></label><button className="filter-button" onClick={() => setNotice('กำลังแสดงสถานที่ทั้งหมดใกล้คุณ')}><span className="filter-glyph">☷</span> ตัวกรอง</button></div>
-
-          <div className="place-list">{filteredPlaces.map((place) => { const Icon = place.icon; return <button key={place.id} className={`place-card ${selected === place.id ? 'selected' : ''}`} onClick={() => { setSelected(place.id); setCheckedIn(false); setNotice('') }} aria-pressed={selected === place.id}><span className={`place-icon ${place.color}`}><Icon size={21} /></span><span className="place-info"><span className="place-title">{place.name}{selected === place.id && <span className="recommended"><Sparkles size={11} /> แนะนำ</span>}</span><span className="place-type">{place.type}</span><span className="place-address"><MapPin size={12} /> {place.address}</span></span><span className="place-meta"><b>{place.distance}</b><small>{place.members}</small></span><span className={`radio ${selected === place.id ? 'checked' : ''}`}>{selected === place.id && <Check size={12} />}</span></button> })}</div>
-          {filteredPlaces.length === 0 && <div className="empty-state">ไม่พบสถานที่ที่ค้นหา ลองใช้คำอื่นดูนะ</div>}
-
-          <div className="checkin-bar"><div className="checkin-copy"><span className="checkin-pin"><MapPin size={18} /></span><span><b>{checkedIn ? 'เช็คอินเรียบร้อยแล้ว!' : 'พร้อมเริ่มต้นหรือยัง?'}</b><small>{checkedIn ? `คุณอยู่ที่ ${selectedPlace.name}` : `เช็คอินที่ ${selectedPlace?.name ?? 'สถานที่ที่เลือก'} รับ +20 คะแนน`}</small></span></div><button className={`checkin-button ${checkedIn ? 'done' : ''}`} onClick={checkIn} disabled={!selectedPlace || checkedIn}>{checkedIn ? <><Check size={17} /> เช็คอินแล้ว</> : <>เช็คอินเลย <ArrowUpRight size={17} /></>}</button></div>
-          {notice && <div className={`notice ${notice.includes('สำเร็จ') ? 'success' : ''}`} role="status">{notice}</div>}
-
-          <section className="activity-section" id="activity"><div className="activity-heading"><div><div className="eyebrow">KEEP THE MOMENTUM</div><h2>กิจกรรมล่าสุด</h2></div><a href="#activity">ดูทั้งหมด <ArrowDownRight size={14} /></a></div><div className="activity-list">{activity.slice(0, 3).map((item, index) => <div className="activity-item" key={`${item.time}-${index}`}><span className="activity-mark"><Dumbbell size={17} /></span><span className="activity-details"><b>{item.place}</b><small>{item.activity} <i>·</i> {item.time}</small></span><span className="points">{item.points} pts</span></div>)}</div></section>
-          <footer className="footer-note"><Clock3 size={13} /> อัปเดตข้อมูลล่าสุดเมื่อสักครู่ <span>·</span> <b>ทุกการเคลื่อนไหวมีความหมาย</b></footer>
+        <header className="topbar"><div className="breadcrumb">หน้าหลัก <span>/</span> <b>{page === 'checkin' ? 'เช็คอิน' : 'กิจกรรมของฉัน'}</b></div><div className="topbar-right"><span className="today-label">{new Date().toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span><span className="avatar small">T</span></div></header>
+        <div className="content-wrap">
+          {page === 'checkin' ? <>
+            <div className="welcome-row"><div><div className="eyebrow"><span className="live-dot" /> YOUR DAILY MOVEMENT</div><h1>วันนี้ไปขยับ<br className="mobile-break" />ร่างกายที่ไหน? <span className="title-spark">✳</span></h1><p className="subtitle">ใช้ตำแหน่งจริงเพื่อค้นหายิมใกล้คุณ เช็คอินแล้วบันทึกกิจกรรมไว้ในอุปกรณ์นี้</p></div><div className="date-chip"><span className="date-icon">{new Date().getDate()}</span><span><b>{new Date().toLocaleDateString('th-TH', { month: 'long' })}</b><small>{new Date().toLocaleDateString('th-TH', { weekday: 'long' })}</small></span></div></div>
+            <section className="stats-row" aria-label="สรุปกิจกรรม"><article className="stat-card"><span className="stat-icon yellow"><Zap size={17} fill="currentColor" /></span><div className="stat-label">คะแนนสะสม</div><div className="stat-value">{totalPoints}<small> pts</small></div><div className="stat-foot">จากการเช็คอินที่บันทึกไว้</div></article><article className="stat-card"><span className="stat-icon green"><MapPin size={17} /></span><div className="stat-label">เช็คอินเดือนนี้</div><div className="stat-value">{monthlyCheckins}<small> ครั้ง</small></div><div className="stat-foot">บันทึกในเบราว์เซอร์ของคุณ</div></article><article className="stat-card"><span className="stat-icon orange"><Flame size={17} /></span><div className="stat-label">สถานที่ใกล้สุด</div><div className="stat-value stat-distance">{places[0]?.distanceKm === null ? '—' : formatDistance(places[0].distanceKm)}</div><div className="stat-foot">{position ? places[0]?.name : 'เปิดใช้ตำแหน่งเพื่อเริ่มต้น'}</div></article></section>
+            <div className="section-heading"><div><div className="eyebrow">FIND YOUR SPOT</div><h2>ยิมและสถานที่ใกล้คุณ <span className="nearby-count">{filteredPlaces.length}</span></h2></div><button className="location-button" onClick={locateMe} disabled={locating}><LocateFixed size={16} /> {locating ? 'กำลังค้นหา…' : position ? 'อัปเดตตำแหน่ง' : 'ใช้ตำแหน่งของฉัน'}</button></div>
+            <div className="search-row"><label className="search-box"><Search size={17} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ค้นหาฟิตเนส สวนสาธารณะ..." aria-label="ค้นหาสถานที่" /><kbd>⌘ K</kbd></label></div>
+            {!position && <div className="location-hint"><LocateFixed size={16} /><span>อนุญาตการเข้าถึงตำแหน่งเพื่อดูระยะทางจริงและเรียงสถานที่ใกล้คุณก่อน</span></div>}
+            <div className="place-list">{filteredPlaces.map((place, index) => { const Icon = place.icon; return <article key={place.id} className={`place-card ${index === 0 && position ? 'selected' : ''}`}><span className={`place-icon ${place.color}`}><Icon size={21} /></span><span className="place-info"><span className="place-title">{place.name}{index === 0 && position && <span className="recommended"><Sparkles size={11} /> ใกล้ที่สุด</span>}</span><span className="place-type">{place.type}</span><span className="place-address"><MapPin size={12} /> {place.address}</span></span><span className="place-meta"><b>{place.distanceKm === null ? 'ระยะทาง —' : formatDistance(place.distanceKm)}</b><small>{place.hours}</small></span><button className="place-checkin" onClick={() => checkIn(place)} disabled={!position} aria-label={`เช็คอินที่ ${place.name}`}>{position ? 'เช็คอิน' : <MapPin size={15} />}</button></article> })}</div>
+            {filteredPlaces.length === 0 && <div className="empty-state">ไม่พบสถานที่ที่ค้นหา ลองใช้คำอื่นดูนะ</div>}
+            {notice && <div className={`notice ${notice.includes('สำเร็จ') ? 'success' : ''}`} role="status">{notice}</div>}
+            <footer className="footer-note"><Clock3 size={13} /> ตำแหน่งใช้เพื่อคำนวณระยะทางเท่านั้น <span>·</span> <b>ไม่ได้บันทึกพิกัดลงในอุปกรณ์</b></footer>
+          </> : <section className="my-activity" id="activity">
+            <div className="welcome-row"><div><div className="eyebrow"><span className="live-dot" /> YOUR WORKOUT HISTORY</div><h1>กิจกรรมของฉัน</h1><p className="subtitle">ประวัติการเช็คอินที่เก็บไว้ใน localStorage ของเบราว์เซอร์นี้</p></div><div className="date-chip"><span className="date-icon"><Activity size={17} /></span><span><b>{checkins.length} ครั้ง</b><small>ประวัติทั้งหมด</small></span></div></div>
+            <section className="stats-row" aria-label="สรุปกิจกรรม"><article className="stat-card"><span className="stat-icon yellow"><Zap size={17} fill="currentColor" /></span><div className="stat-label">คะแนนที่ได้รับ</div><div className="stat-value">{totalPoints}<small> pts</small></div><div className="stat-foot">จากรายการเช็คอิน</div></article><article className="stat-card"><span className="stat-icon green"><MapPin size={17} /></span><div className="stat-label">เช็คอินเดือนนี้</div><div className="stat-value">{monthlyCheckins}<small> ครั้ง</small></div><div className="stat-foot">เดือนปัจจุบัน</div></article><article className="stat-card"><span className="stat-icon orange"><Dumbbell size={17} /></span><div className="stat-label">สถานที่ที่เคยไป</div><div className="stat-value">{new Set(checkins.map((entry) => entry.gymId)).size}<small> แห่ง</small></div><div className="stat-foot">ไม่ซ้ำกัน</div></article></section>
+            <div className="activity-heading page-activity-heading"><div><div className="eyebrow">CHECK-IN HISTORY</div><h2>ประวัติการเช็คอิน</h2></div><button className="location-button" onClick={() => setPage('checkin')}><MapPin size={15} /> เช็คอินสถานที่</button></div>
+            {checkins.length ? <div className="checkin-history">{checkins.map((entry) => <article className="history-item" key={entry.id}><span className="activity-mark"><Dumbbell size={17} /></span><span className="history-main"><b>{entry.gymName}</b><small><Clock3 size={12} /> {formatDate(entry.timestamp)}</small></span><span className="history-distance"><MapPin size={13} /> {entry.distance}</span><span className="points">+{entry.points} pts</span></article>)}</div> : <div className="activity-empty"><span><Activity size={23} /></span><b>ยังไม่มีประวัติการเช็คอิน</b><p>เมื่อคุณเช็คอิน รายการชื่อยิม ระยะทาง เวลา และคะแนนจะแสดงที่นี่</p><button className="checkin-button" onClick={() => setPage('checkin')}>ค้นหายิมใกล้ฉัน <ArrowUpRight size={16} /></button></div>}
+            <footer className="footer-note"><Clock3 size={13} /> รายการนี้เก็บในเบราว์เซอร์เครื่องนี้เท่านั้น <span>·</span> <b>ไม่ส่งไปยังเซิร์ฟเวอร์</b></footer>
+          </section>}
         </div>
       </section>
     </main>
