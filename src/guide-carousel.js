@@ -1,5 +1,16 @@
 const GUIDE_SELECTOR = '.fit-guide'
 
+function getPageStep(cards, scroller) {
+  if (!cards.length) return 300
+  const cardWidth = cards[0].getBoundingClientRect().width || 152
+  const track = cards[0].parentElement
+  const computedGap = track ? parseFloat(getComputedStyle(track).gap || '16') : 16
+  const gap = Number.isNaN(computedGap) ? 16 : computedGap
+  const stepUnit = cardWidth + gap
+  const visibleCount = Math.max(1, Math.floor((scroller.clientWidth + gap) / stepUnit))
+  return visibleCount * stepUnit
+}
+
 function enhanceGuide(guide) {
   if (guide.dataset.carouselReady === 'true') return
 
@@ -48,7 +59,9 @@ function enhanceGuide(guide) {
     dot.type = 'button'
     dot.className = 'fit-guide-carousel-dot'
     dot.setAttribute('aria-label', `Go to category ${index + 1}: ${card.textContent.trim()}`)
-    dot.addEventListener('click', () => card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' }))
+    dot.addEventListener('click', () =>
+      card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' })
+    )
     indicators.append(dot)
     return dot
   })
@@ -75,13 +88,13 @@ function enhanceGuide(guide) {
     next.disabled = scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 2
   }
 
-  function scrollByCard(direction) {
-    const distance = cards[0].getBoundingClientRect().width + 12
+  function scrollByGroup(direction) {
+    const distance = getPageStep(cards, scroller)
     scroller.scrollBy({ left: direction * distance, behavior: 'smooth' })
   }
 
-  previous.addEventListener('click', () => scrollByCard(-1))
-  next.addEventListener('click', () => scrollByCard(1))
+  previous.addEventListener('click', () => scrollByGroup(-1))
+  next.addEventListener('click', () => scrollByGroup(1))
   scroller.addEventListener('scroll', update, { passive: true })
   window.addEventListener('resize', update)
   requestAnimationFrame(update)
