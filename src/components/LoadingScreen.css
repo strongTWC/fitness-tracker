@@ -1,0 +1,27 @@
+.fit-loader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #0b0d0c;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 240ms ease, visibility 240ms ease;
+  pointer-events: auto;
+}
+
+.fit-loader-overlay.is-leaving {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.fit-loader-overlay lp-loader {
+  filter: drop-shadow(0 0 16px rgba(63, 160, 82, 0.12));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fit-loader-overlay { transition-duration: 0ms; }
+}
