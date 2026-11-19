@@ -49,6 +49,18 @@
   flex: 0 0 var(--guide-card-width) !important;
   scroll-snap-align: start;
   scroll-snap-stop: always;
+  border: 1px solid #29322c;
+  background: transparent !important;
+}
+
+.fit-guide-carousel-track > .fit-guide-tile:hover {
+  border-color: #647a46;
+  background: rgba(163, 230, 53, 0.045) !important;
+}
+
+.fit-guide-carousel-track > .fit-guide-tile:focus-visible {
+  outline: 2px solid #a3e635;
+  outline-offset: 2px;
 }
 
 .fit-guide-carousel-track > .fit-guide-tile b {
@@ -73,6 +85,7 @@
   width: var(--guide-card-width);
   min-height: 104px;
   height: auto;
+  background: transparent !important;
 }
 
 .fit-guide-carousel-indicators {
