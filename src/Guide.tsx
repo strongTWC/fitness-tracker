@@ -15,12 +15,9 @@ const categories = [
 export default function Guide() {
   const [selected, setSelected] = useState(null)
   const [expanded, setExpanded] = useState(false)
-
-  return (
-    <section className={`fit-guide ${expanded ? 'expanded' : ''}`} id="gym-guide" aria-labelledby="fit-guide-title">
-      <header className="fit-guide-heading"><div><div className="fit-eyebrow"><span /> GYM GUIDE</div><h2 id="fit-guide-title">Gym Guide</h2></div><button className="fit-guide-more" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded}>{expanded ? 'Less' : 'More'}<span>{expanded ? 'ซ่อน' : 'ดูทั้งหมด'}</span></button></header>
-      <div className="fit-guide-scroller"><div className="fit-guide-grid">{categories.map((category) => { const Icon = category.icon; return <button key={category.id} type="button" className="fit-guide-tile" onClick={() => setSelected(category)} aria-label={`ดูคู่มือท่า${category.label}`}><Icon size={20} /><b>{category.label}</b></button> })}</div></div>
-      {selected && <div className="fit-guide-backdrop" role="presentation" onClick={() => setSelected(null)}><section className="fit-guide-modal" role="dialog" aria-modal="true" aria-labelledby="fit-guide-modal-title" onClick={(event) => event.stopPropagation()}><button className="fit-guide-close" onClick={() => setSelected(null)} aria-label="ปิด">×</button><div className="fit-eyebrow"><span /> {selected.label.toUpperCase()}</div><h3 id="fit-guide-modal-title">{selected.label} · ท่าแนะนำ</h3><div className="fit-guide-detail"><Dumbbell size={16} /><div><b>ท่าแนะนำ</b><p>{selected.exercise}</p></div></div><div className="fit-guide-detail"><Zap size={16} /><div><b>จุดสำคัญ</b><p>{selected.focus}</p></div></div></section></div>}
-    </section>
-  )
+  return <section className={`fit-guide ${expanded ? 'expanded' : ''}`} id="gym-guide" aria-labelledby="fit-guide-title">
+    <header className="fit-guide-heading"><div><div className="fit-eyebrow"><span /> GYM GUIDE</div><h2 id="fit-guide-title">Gym Guide</h2></div><button className="fit-guide-more" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded}>{expanded ? 'Less' : 'More'}<span>{expanded ? 'ซ่อน' : 'ดูทั้งหมด'}</span></button></header>
+    <div className="fit-guide-scroller"><div className="fit-guide-grid">{categories.map((category) => { const Icon = category.icon; return <button key={category.id} type="button" className="fit-guide-tile" onClick={() => setSelected(category)} aria-label={`ดูคู่มือท่า${category.label}`}><Icon size={20} /><b>{category.label}</b></button> })}</div></div>
+    {selected && <div className="fit-guide-backdrop" role="presentation" onClick={() => setSelected(null)}><section className="fit-guide-modal" role="dialog" aria-modal="true" aria-labelledby="fit-guide-modal-title" onClick={(event) => event.stopPropagation()}><button className="fit-guide-close" onClick={() => setSelected(null)} aria-label="ปิด">×</button><div className="fit-eyebrow"><span /> {selected.label.toUpperCase()}</div><h3 id="fit-guide-modal-title">{selected.label} · ท่าแนะนำ</h3><div className="fit-guide-detail"><Dumbbell size={16} /><div><b>ท่าแนะนำ</b><p>{selected.exercise}</p></div></div><div className="fit-guide-detail"><Zap size={16} /><div><b>จุดสำคัญ</b><p>{selected.focus}</p></div></div></section></div>}
+  </section>
 }
