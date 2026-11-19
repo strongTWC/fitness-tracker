@@ -95,6 +95,7 @@ function getCombo(entries) {
 
 function App() {
   const [view, setView] = useState('home')
+  const [pendingGuideCategoryId, setPendingGuideCategoryId] = useState(null)
   const [checkins, setCheckins] = useState(() => readArray(CHECKINS_KEY))
   const [players, setPlayers] = useState(() => readArray(PLAYERS_KEY, initialPlayers))
   const [selectedGymId, setSelectedGymId] = useState(null)
@@ -107,6 +108,20 @@ function App() {
   const [notice, setNotice] = useState('')
   const [footerModal, setFooterModal] = useState(null)
   const [formNotice, setFormNotice] = useState('')
+
+  function navigateToView(nextView) {
+    if (nextView !== 'guide') setPendingGuideCategoryId(null)
+    setView(nextView)
+  }
+
+  function openGuideCategory(categoryId) {
+    setPendingGuideCategoryId(categoryId)
+    setView('guide')
+  }
+
+  function clearPendingGuideCategory() {
+    setPendingGuideCategoryId(null)
+  }
 
   useEffect(() => {
     try {
@@ -261,8 +276,8 @@ function App() {
       <DesktopSidebar
         items={navItems}
         activeView={view}
-        onNavigate={setView}
-        onProfileClick={() => setView('profile')}
+        onNavigate={navigateToView}
+        onProfileClick={() => navigateToView('profile')}
         streakDays={combo}
         profileName="Tanawat"
       />
@@ -270,8 +285,8 @@ function App() {
       <main className="fit-main">
         <GlobalHeader
           pageTitle={navItems.find((item) => item.id === view)?.label || 'เช็คอิน'}
-          onLogoClick={() => setView('home')}
-          onProfileClick={() => setView('profile')}
+          onLogoClick={() => navigateToView('home')}
+          onProfileClick={() => navigateToView('profile')}
           profile={{ name: 'Tanawat' }}
         />
 
@@ -399,7 +414,7 @@ function App() {
               </section>
             </div>
 
-            <Guide />
+            <Guide onOpenCategory={openGuideCategory} />
 
             <footer className="fit-footer" aria-label="ข้อมูลเพิ่มเติม">
               <button type="button" onClick={() => openFooterModal('feedback')}>ความคิดเห็นต่อผู้พัฒนา</button>
@@ -428,7 +443,7 @@ function App() {
           </section>
         )}
 
-        {view === 'guide' && <section className="fit-guide-screen"><Guide /></section>}
+        {view === 'guide' && <section className="fit-guide-screen"><Guide initialCategoryId={pendingGuideCategoryId} onDetailClose={clearPendingGuideCategory} /></section>}
         {view === 'profile' && (
           <section className="fit-secondary-view">
             <div className="fit-eyebrow"><span /> YOUR PROFILE</div>
@@ -438,7 +453,7 @@ function App() {
         )}
       </main>
 
-      <MobileBottomNav items={navItems} activeView={view} onNavigate={setView} />
+      <MobileBottomNav items={navItems} activeView={view} onNavigate={navigateToView} />
 
       {confirmGym && (
         <div className="fit-confirm-backdrop" role="presentation" onClick={() => setConfirmGym(null)}>

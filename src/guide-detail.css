@@ -1,61 +1,52 @@
-/* Gym Guide anatomy detail modal — selectors matched to Guide.tsx. */
+/* Gym Guide full-page detail route. */
 
-.anatomy-modal-backdrop {
-  position: fixed;
-  z-index: 100;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  overflow-y: auto;
-  padding: clamp(12px, 3vw, 32px);
-  background: rgba(0, 0, 0, 0.82);
-  backdrop-filter: blur(5px);
-}
-
-.anatomy-modal {
+.anatomy-detail-page {
   box-sizing: border-box;
-  width: min(920px, 100%);
-  max-height: calc(100dvh - 2 * clamp(12px, 3vw, 32px));
-  overflow-y: auto;
-  margin: auto;
-  padding: clamp(16px, 2.2vw, 24px);
+  width: min(100%, 1080px);
+  min-width: 0;
+  margin: 0 auto;
+  padding: clamp(14px, 2.2vw, 24px);
   border: 1px solid #29322c;
   border-radius: 16px;
-  background: #141816;
+  background: #121713;
   color: #f2f4ef;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.58);
 }
 
-.anatomy-modal-header {
+.anatomy-detail-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 14px;
+  margin-bottom: 18px;
 }
 
-.anatomy-modal-nav,
-.anatomy-modal-actions {
+.anatomy-back-btn {
+  display: inline-flex;
+  min-height: 38px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid #344037;
+  border-radius: 9px;
+  background: #101310;
+  color: #b9c6b3;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.anatomy-back-btn svg { color: #a3e635; }
+.anatomy-back-btn:hover { border-color: #a3e635; color: #f2f4ef; }
+
+.anatomy-category-stepper {
   display: flex;
+  min-width: 0;
   align-items: center;
   gap: 8px;
 }
 
-.anatomy-modal-nav {
-  min-width: 0;
-  flex: 1;
-}
-
-.anatomy-modal-title {
-  min-width: 0;
-  color: #f2f4ef;
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.45;
-}
-
-.anatomy-nav-btn,
-.anatomy-close-btn {
+.anatomy-nav-btn {
   display: grid;
   width: 36px;
   height: 36px;
@@ -68,35 +59,37 @@
   cursor: pointer;
 }
 
-.anatomy-nav-btn:hover,
-.anatomy-close-btn:hover {
-  border-color: #a3e635;
-  background: #1b2418;
-}
+.anatomy-nav-btn:hover { border-color: #a3e635; background: #1b2418; }
 
-.anatomy-view-toggle {
-  display: inline-flex;
-  gap: 3px;
-  padding: 3px;
-  border: 1px solid #29322c;
-  border-radius: 9px;
-  background: #101310;
-}
-
-.anatomy-view-toggle button {
-  padding: 7px 10px;
-  border: 0;
-  border-radius: 7px;
-  background: transparent;
-  color: #929d91;
+.anatomy-stepper-label {
+  overflow: hidden;
+  color: #cbd5c7;
   font-size: 12px;
+  font-weight: 700;
+  text-overflow: ellipsis;
   white-space: nowrap;
-  cursor: pointer;
 }
 
-.anatomy-view-toggle button.is-active {
-  background: #29351f;
-  color: #c8f28b;
+.anatomy-detail-heading { margin: 0 0 16px; }
+.anatomy-detail-kicker {
+  color: #a3e635;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.anatomy-detail-heading h2 {
+  margin: 6px 0;
+  color: #f2f4ef;
+  font-size: clamp(20px, 2.4vw, 28px);
+  line-height: 1.3;
+}
+
+.anatomy-image-caption {
+  margin: 0;
+  color: #929d91;
+  font-size: 11px;
+  line-height: 1.5;
 }
 
 .anatomy-subtabs {
@@ -128,14 +121,14 @@
   color: #d4f99b;
 }
 
-.anatomy-layout {
+.anatomy-detail-page .anatomy-layout {
   display: grid;
-  grid-template-columns: minmax(220px, 0.78fr) minmax(0, 1.22fr);
+  grid-template-columns: minmax(260px, 0.95fr) minmax(0, 1.05fr);
   align-items: start;
-  gap: 16px;
+  gap: 18px;
 }
 
-.anatomy-diagram-wrap {
+.anatomy-detail-page .anatomy-diagram-wrap {
   display: grid;
   box-sizing: border-box;
   width: 100%;
@@ -150,7 +143,7 @@
   background: #fff;
 }
 
-.anatomy-muscle-image {
+.anatomy-detail-page .anatomy-muscle-image {
   display: block;
   width: 100%;
   height: 100%;
@@ -160,13 +153,7 @@
   object-position: center;
 }
 
-.anatomy-image-caption {
-  color: #aeb8ac;
-  font-size: 11px;
-  line-height: 1.4;
-}
-
-.anatomy-content {
+.anatomy-detail-page .anatomy-content {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-content: start;
@@ -174,7 +161,7 @@
   min-width: 0;
 }
 
-.anatomy-content > section {
+.anatomy-detail-page .anatomy-box {
   box-sizing: border-box;
   min-width: 0;
   padding: 16px;
@@ -183,17 +170,14 @@
   background: #101411;
 }
 
-.anatomy-content > section h4 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.anatomy-detail-page .anatomy-box h3 {
   margin: 0 0 12px;
   color: #a3e635;
   font-size: 14px;
   line-height: 1.4;
 }
 
-.anatomy-content > section ul {
+.anatomy-detail-page .anatomy-box ul {
   display: grid;
   gap: 8px;
   margin: 0;
@@ -204,63 +188,24 @@
   text-align: left;
 }
 
-.anatomy-content > section li {
-  padding-left: 2px;
-  overflow-wrap: anywhere;
-}
-
-.anatomy-content > section li::marker {
-  color: #a3e635;
-}
-
-.anatomy-modal button:focus-visible {
-  outline: 2px solid #a3e635;
-  outline-offset: 2px;
-}
+.anatomy-detail-page .anatomy-box li { padding-left: 2px; overflow-wrap: anywhere; }
+.anatomy-detail-page .anatomy-box li::marker { color: #a3e635; }
+.anatomy-detail-page button:focus-visible { outline: 2px solid #a3e635; outline-offset: 2px; }
 
 @media (max-width: 700px) {
-  .anatomy-modal-header {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .anatomy-modal-nav,
-  .anatomy-modal-actions {
-    width: 100%;
-  }
-
-  .anatomy-modal-nav {
-    justify-content: space-between;
-  }
-
-  .anatomy-modal-title {
-    flex: 1;
-    text-align: center;
-  }
-
-  .anatomy-modal-actions {
-    justify-content: flex-end;
-  }
-
-  .anatomy-layout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
-  }
-
-  .anatomy-diagram-wrap {
-    width: min(100%, 360px);
-    justify-self: center;
-  }
-
-  .anatomy-content {
-    grid-template-columns: minmax(0, 1fr);
-  }
+  .anatomy-detail-page { padding: 14px 12px; }
+  .anatomy-detail-topbar { align-items: stretch; flex-direction: column; gap: 10px; }
+  .anatomy-back-btn { align-self: flex-start; }
+  .anatomy-category-stepper { justify-content: space-between; }
+  .anatomy-detail-page .anatomy-layout { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .anatomy-detail-page .anatomy-diagram-wrap { width: min(100%, 390px); justify-self: center; }
+  .anatomy-detail-page .anatomy-content { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .anatomy-modal-backdrop *,
-  .anatomy-modal-backdrop *::before,
-  .anatomy-modal-backdrop *::after {
+  .anatomy-detail-page *,
+  .anatomy-detail-page *::before,
+  .anatomy-detail-page *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }

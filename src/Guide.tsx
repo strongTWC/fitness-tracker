@@ -257,9 +257,19 @@ const categories: GuideCategory[] = [
   },
 ]
 
-export default function Guide() {
+export interface GuideProps {
+  initialCategoryId?: string | null
+  onOpenCategory?: (categoryId: string) => void
+  onDetailClose?: () => void
+}
+
+export default function Guide({
+  initialCategoryId = null,
+  onOpenCategory,
+  onDetailClose,
+}: GuideProps) {
   const [query, setQuery] = useState('')
-  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null)
+  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(initialCategoryId)
   const [activeSectionIndex, setActiveSectionIndex] = useState(0)
 
   const filteredCategories = useMemo(() => {
@@ -292,9 +302,18 @@ export default function Guide() {
     setActiveSectionIndex(0)
   }
 
-  function closeModal() {
+  function returnToOverview() {
     setActiveCategoryId(null)
     setActiveSectionIndex(0)
+    onDetailClose?.()
+  }
+
+  function handleCategoryClick(categoryId: string) {
+    if (onOpenCategory) {
+      onOpenCategory(categoryId)
+      return
+    }
+    openCategoryById(categoryId)
   }
 
   function stepCategory(delta: number) {
@@ -307,136 +326,143 @@ export default function Guide() {
 
   return (
     <section className="gym-guide-section" aria-label="Gym Guide">
-      <div className="gym-guide-header">
-        <div>
-          <span className="gym-guide-kicker">
-            <HeartPulse size={14} /> GYM GUIDE
-          </span>
-          <h2 className="gym-guide-title">Gym Guide</h2>
-        </div>
-      </div>
+      {!activeCategory && (
+        <>
+          <div className="gym-guide-header">
+            <div>
+              <span className="gym-guide-kicker">
+                <HeartPulse size={14} /> GYM GUIDE
+              </span>
+              <h2 className="gym-guide-title">Gym Guide</h2>
+            </div>
+          </div>
 
-      <label className="gym-guide-search" aria-label="ค้นหากล้ามเนื้อ ท่าฝึก หรือคลาส">
-        <Search size={16} />
-        <input
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="ค้นหากล้ามเนื้อ ท่าฝึก หรือคลาส..."
-        />
-        {query && (
-          <button
-            type="button"
-            className="gym-guide-clear"
-            onClick={() => setQuery('')}
-            aria-label="ล้างคำค้นหา"
-          >
-            <X size={14} />
-          </button>
-        )}
-      </label>
-
-      <div className="gym-guide-group">
-        <h3 className="gym-guide-group-title">กลุ่มกล้ามเนื้อหลัก</h3>
-        <div className="gym-guide-grid" role="list" aria-label="เลือกกลุ่มกล้ามเนื้อ" tabIndex={0}>
-          {muscleCategories.map((cat) => {
-            const IconComponent = cat.icon
-            return (
+          <label className="gym-guide-search" aria-label="ค้นหากล้ามเนื้อ ท่าฝึก หรือคลาส">
+            <Search size={16} />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="ค้นหากล้ามเนื้อ ท่าฝึก หรือคลาส..."
+            />
+            {query && (
               <button
-                key={cat.id}
                 type="button"
-                role="listitem"
-                className="gym-guide-card"
-                onClick={() => openCategoryById(cat.id)}
+                className="gym-guide-clear"
+                onClick={() => setQuery('')}
+                aria-label="ล้างคำค้นหา"
               >
-                <span className="gym-guide-card-icon" aria-hidden="true">
-                  <IconComponent size={28} strokeWidth={1.75} />
-                </span>
-                <span className="gym-guide-card-label">{cat.label}</span>
+                <X size={14} />
               </button>
-            )
-          })}
-        </div>
-        <p className="gym-guide-carousel-hint">ปัดเพื่อดูหมวดหมู่เพิ่มเติม</p>
-      </div>
+            )}
+          </label>
 
-      <div className="gym-guide-group">
-        <h3 className="gym-guide-group-title">กิจกรรม &amp; คลาส</h3>
-        <div className="gym-guide-pills" role="list" aria-label="กิจกรรมและคลาส" tabIndex={0}>
-          {activityCategories.map((cat) => {
-            const IconComponent = cat.icon
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                role="listitem"
-                className="gym-guide-pill"
-                onClick={() => openCategoryById(cat.id)}
-              >
-                <IconComponent size={16} strokeWidth={1.75} aria-hidden="true" />
-                <span>{cat.label}</span>
-              </button>
-            )
-          })}
-        </div>
-        <p className="gym-guide-carousel-hint">ปัดเพื่อดูกิจกรรมเพิ่มเติม</p>
-      </div>
+          <div className="gym-guide-group">
+            <h3 className="gym-guide-group-title">กลุ่มกล้ามเนื้อหลัก</h3>
+            <div className="gym-guide-grid" role="list" aria-label="เลือกกลุ่มกล้ามเนื้อ" tabIndex={0}>
+              {muscleCategories.map((cat) => {
+                const IconComponent = cat.icon
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    role="listitem"
+                    className="gym-guide-card"
+                    onClick={() => handleCategoryClick(cat.id)}
+                  >
+                    <span className="gym-guide-card-icon" aria-hidden="true">
+                      <IconComponent size={28} strokeWidth={1.75} />
+                    </span>
+                    <span className="gym-guide-card-label">{cat.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+            <p className="gym-guide-carousel-hint">ปัดเพื่อดูหมวดหมู่เพิ่มเติม</p>
+          </div>
+
+          <div className="gym-guide-group">
+            <h3 className="gym-guide-group-title">กิจกรรม &amp; คลาส</h3>
+            <div className="gym-guide-pills" role="list" aria-label="กิจกรรมและคลาส" tabIndex={0}>
+              {activityCategories.map((cat) => {
+                const IconComponent = cat.icon
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    role="listitem"
+                    className="gym-guide-pill"
+                    onClick={() => handleCategoryClick(cat.id)}
+                  >
+                    <IconComponent size={16} strokeWidth={1.75} aria-hidden="true" />
+                    <span>{cat.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+            <p className="gym-guide-carousel-hint">ปัดเพื่อดูกิจกรรมเพิ่มเติม</p>
+          </div>
+        </>
+      )}
 
       {activeCategory && activeSection && (
-        <div className="anatomy-modal-backdrop" role="dialog" aria-modal="true" onClick={closeModal}>
-          <div className="anatomy-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="anatomy-modal-header">
-              <div className="anatomy-modal-nav">
-                <button
-                  type="button"
-                  className="anatomy-nav-btn"
-                  onClick={() => stepCategory(-1)}
-                  aria-label="หมวดก่อนหน้า"
-                >
-                  <ChevronLeft size={16} />
-                </button>
-                <span className="anatomy-modal-title">
-                  {activeCategory.label} · คู่มือฝึก · {activeSection.label}
-                </span>
-                <button
-                  type="button"
-                  className="anatomy-nav-btn"
-                  onClick={() => stepCategory(1)}
-                  aria-label="หมวดถัดไป"
-                >
-                  <ChevronRight size={16} />
-                </button>
-              </div>
+        <section className="anatomy-detail-page" aria-label={`รายละเอียด ${activeCategory.label}`}>
+          <div className="anatomy-detail-topbar">
+            <button
+              type="button"
+              className="anatomy-back-btn"
+              onClick={returnToOverview}
+            >
+              <ChevronLeft size={17} />
+              กลับไป Gym Guide
+            </button>
 
-              <div className="anatomy-modal-actions">
-                <span className="anatomy-image-caption">ภาพตัวอย่างท่าเริ่มต้นและท่าสุดท้าย</span>
-                <button
-                  type="button"
-                  className="anatomy-close-btn"
-                  onClick={closeModal}
-                  aria-label="ปิดหน้าต่าง"
-                >
-                  <X size={18} />
-                </button>
-              </div>
+            <div className="anatomy-category-stepper">
+              <button
+                type="button"
+                className="anatomy-nav-btn"
+                onClick={() => stepCategory(-1)}
+                aria-label="หมวดก่อนหน้า"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <span className="anatomy-stepper-label">{activeCategory.label} · คู่มือฝึก</span>
+              <button
+                type="button"
+                className="anatomy-nav-btn"
+                onClick={() => stepCategory(1)}
+                aria-label="หมวดถัดไป"
+              >
+                <ChevronRight size={16} />
+              </button>
             </div>
+          </div>
 
-            {activeCategory.sections.length > 1 && (
-              <div className="anatomy-subtabs">
-                {activeCategory.sections.map((sec, idx) => (
-                  <button
-                    key={sec.id}
-                    type="button"
-                    className={idx === activeSectionIndex ? 'is-active' : ''}
-                    onClick={() => setActiveSectionIndex(idx)}
-                  >
-                    {sec.label}
-                  </button>
-                ))}
-              </div>
-            )}
+          <header className="anatomy-detail-heading">
+            <span className="anatomy-detail-kicker">GYM GUIDE / {activeCategory.label}</span>
+            <h2>{activeSection.label}</h2>
+            <p className="anatomy-image-caption">ภาพตัวอย่างท่าเริ่มต้นและท่าสุดท้าย</p>
+          </header>
 
-            <div className="anatomy-layout">
+          {activeCategory.sections.length > 1 && (
+            <div className="anatomy-subtabs" role="tablist" aria-label="เลือกส่วนกล้ามเนื้อ">
+              {activeCategory.sections.map((sec, idx) => (
+                <button
+                  key={sec.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={idx === activeSectionIndex}
+                  className={idx === activeSectionIndex ? 'is-active' : ''}
+                  onClick={() => setActiveSectionIndex(idx)}
+                >
+                  {sec.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="anatomy-layout">
+            <div className="anatomy-diagram-wrap">
               <img
                 className="anatomy-muscle-image"
                 src={activeSection.imageSrc}
@@ -444,29 +470,29 @@ export default function Guide() {
                 loading="lazy"
                 decoding="async"
               />
+            </div>
 
-              <div className="anatomy-content">
-                <section className="anatomy-box">
-                  <h4>ท่าแนะนำ</h4>
-                  <ul>
-                    {activeSection.exercises.map((ex) => (
-                      <li key={ex}>{ex}</li>
-                    ))}
-                  </ul>
-                </section>
+            <div className="anatomy-content">
+              <section className="anatomy-box">
+                <h3>ท่าแนะนำ</h3>
+                <ul>
+                  {activeSection.exercises.map((ex) => (
+                    <li key={ex}>{ex}</li>
+                  ))}
+                </ul>
+              </section>
 
-                <section className="anatomy-box">
-                  <h4>จุดสำคัญ</h4>
-                  <ul>
-                    {activeSection.tips.map((tip) => (
-                      <li key={tip}>{tip}</li>
-                    ))}
-                  </ul>
-                </section>
-              </div>
+              <section className="anatomy-box">
+                <h3>จุดสำคัญ</h3>
+                <ul>
+                  {activeSection.tips.map((tip) => (
+                    <li key={tip}>{tip}</li>
+                  ))}
+                </ul>
+              </section>
             </div>
           </div>
-        </div>
+        </section>
       )}
     </section>
   )
