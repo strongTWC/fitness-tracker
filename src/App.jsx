@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react'
 import { Activity, ArrowDownRight, ArrowUpRight, Check, ChevronDown, Clock3, Dumbbell, Flame, LocateFixed, MapPin, Search, Target, Zap } from 'lucide-react'
+import TopThreeChallenge from './components/TopThreeChallenge'
 import './geolocation.css'
 import './gym-filters.css'
 
 const CHECKINS_KEY = 'fitcheck-checkins-v1'
+const CHALLENGE_PLAYERS_KEY = 'fitcheck-challenge-players-v1'
 const gyms = [
   { id: 'ff-centralworld', name: 'Fitness First — CentralWorld', brand: 'Fitness First', type: 'ฟิตเนส · เวทเทรนนิ่ง · คลาส', address: 'ชั้น 3 CentralWorld, ราชประสงค์', color: 'lime', lat: 13.7466, lng: 100.5393 },
   { id: 'ff-siam', name: 'Fitness First — Siam Paragon', brand: 'Fitness First', type: 'ฟิตเนส · เวทเทรนนิ่ง · คลาส', address: 'ชั้น 3 Siam Paragon, ปทุมวัน', color: 'lime', lat: 13.7466, lng: 100.5347 },
@@ -12,17 +14,24 @@ const gyms = [
   { id: 'jetts-siam', name: 'Jetts 24 Hour Fitness — Siam Square One', brand: 'Jetts', type: 'ฟิตเนส · เปิด 24 ชั่วโมง', address: 'ชั้น 5 Siam Square One, ปทุมวัน', color: 'peach', lat: 13.7445, lng: 100.5345 },
   { id: 'jetts-silom', name: 'Jetts 24 Hour Fitness — Silom Complex', brand: 'Jetts', type: 'ฟิตเนส · เปิด 24 ชั่วโมง', address: 'ชั้น 4 Silom Complex, สีลม', color: 'peach', lat: 13.7291, lng: 100.5341 },
   { id: 'jetts-rama9', name: 'Jetts 24 Hour Fitness — Central Rama 9', brand: 'Jetts', type: 'ฟิตเนส · เปิด 24 ชั่วโมง', address: 'ชั้น 6 Central Rama 9, พระราม 9', color: 'peach', lat: 13.7586, lng: 100.5662 },
-  { id: 'ff-aia-capital', name: 'Fitness First Platinum — AIA Capital Center', brand: 'Fitness First', type: 'ฟิตเนส · เวทเทรนนิ่ง · คลาส', address: 'ชั้น ออกกำลังกาย AIA Capital Center, รัชดาภิเษก', color: 'lime', lat: 13.7595, lng: 100.5683 },
+  { id: 'ff-aia-capital', name: 'Fitness First Platinum — AIA Capital Center', brand: 'Fitness First', type: 'ฟิตเนส · เวทเทรนนิ่ง · คลาส', address: 'AIA Capital Center, รัชดาภิเษก', color: 'lime', lat: 13.7595, lng: 100.5683 },
   { id: 'jetts-ratchada', name: 'Jetts 24 Hour Fitness — The Street Ratchada', brand: 'Jetts', type: 'ฟิตเนส · เปิด 24 ชั่วโมง', address: 'ชั้น 2 The Street Ratchada, รัชดาภิเษก', color: 'peach', lat: 13.7692, lng: 100.5748 },
 ]
 
-function readCheckins() {
+const initialChallengePlayers = [
+  { id: 'pimchanok', name: 'Pimchanok', gym: 'Fitness First — CentralWorld', pts: 240, avatarUrl: '', isMe: false },
+  { id: 'tanawat', name: 'Tanawat', gym: 'ยังไม่มีการเช็คอิน', pts: 180, avatarUrl: '', isMe: true },
+  { id: 'nattapong', name: 'Nattapong', gym: 'Jetts 24 Hour Fitness — Silom Complex', pts: 160, avatarUrl: '', isMe: false },
+  { id: 'siriporn', name: 'Siriporn', gym: 'Fitness First — The EmQuartier', pts: 140, avatarUrl: '', isMe: false },
+]
+
+function readLocalArray(key, fallback) {
   try {
-    const stored = localStorage.getItem(CHECKINS_KEY)
-    const records = stored ? JSON.parse(stored) : []
-    return Array.isArray(records) ? records : []
+    const stored = localStorage.getItem(key)
+    const parsed = stored ? JSON.parse(stored) : null
+    return Array.isArray(parsed) ? parsed : fallback
   } catch {
-    return []
+    return fallback
   }
 }
 
@@ -58,7 +67,8 @@ function App() {
   const [brandFilter, setBrandFilter] = useState('all')
   const [sortByDistance, setSortByDistance] = useState(false)
   const [selectedGymId, setSelectedGymId] = useState('ff-centralworld')
-  const [checkins, setCheckins] = useState(readCheckins)
+  const [checkins, setCheckins] = useState(() => readLocalArray(CHECKINS_KEY, []))
+  const [challengePlayers, setChallengePlayers] = useState(() => readLocalArray(CHALLENGE_PLAYERS_KEY, initialChallengePlayers))
   const [notice, setNotice] = useState('')
   const [geoError, setGeoError] = useState(null)
   const places = useMemo(() => gyms.map((gym) => ({
@@ -135,6 +145,13 @@ function App() {
       points: 20,
     }
     persistCheckins([entry, ...checkins])
+    setChallengePlayers((currentPlayers) => {
+      const hasMe = currentPlayers.some((player) => player.isMe || player.id === 'tanawat')
+      if (!hasMe) return [...currentPlayers, { id: 'tanawat', name: 'Tanawat', gym: gym.name, pts: 20, isMe: true }]
+      return currentPlayers.map((player) => player.isMe || player.id === 'tanawat'
+        ? { ...player, gym: gym.name, pts: (Number(player.pts) || 0) + 20, isMe: true }
+        : player)
+    })
     setSelectedGymId(gym.id)
     setNotice(`เช็คอินที่ ${gym.name} สำเร็จ! รับ 20 คะแนนแล้ว${distanceKm === null ? ' (ไม่ได้บันทึกระยะทาง)' : ''}`)
   }
@@ -161,12 +178,13 @@ function App() {
           {page === 'checkin' ? <>
             <div className="welcome-row"><div><div className="eyebrow"><span className="live-dot" /> YOUR DAILY MOVEMENT</div><h1>วันนี้ไปขยับ<br className="mobile-break" />ร่างกายที่ไหน? <span className="title-spark">✳</span></h1><p className="subtitle">เปิดตำแหน่งเพื่อเรียงสาขาใกล้คุณ หรือเลือกสาขา Fitness First และ Jetts ด้วยตนเอง</p></div><div className="date-chip"><span className="date-icon">{new Date().getDate()}</span><span><b>{new Date().toLocaleDateString('th-TH', { month: 'long' })}</b><small>{new Date().toLocaleDateString('th-TH', { weekday: 'long' })}</small></span></div></div>
             <section className="stats-row" aria-label="สรุปกิจกรรม"><article className="stat-card"><span className="stat-icon yellow"><Zap size={17} fill="currentColor" /></span><div className="stat-label">คะแนนสะสม</div><div className="stat-value">{totalPoints}<small> pts</small></div><div className="stat-foot">จากการเช็คอินที่บันทึกไว้</div></article><article className="stat-card"><span className="stat-icon green"><MapPin size={17} /></span><div className="stat-label">เช็คอินเดือนนี้</div><div className="stat-value">{monthlyCheckins}<small> ครั้ง</small></div><div className="stat-foot">บันทึกในเบราว์เซอร์ของคุณ</div></article><article className="stat-card"><span className="stat-icon orange"><Flame size={17} /></span><div className="stat-label">สาขาที่ใกล้สุด</div><div className="stat-value stat-distance">{position ? formatDistance(Math.min(...places.map((place) => place.distanceKm))) : '—'}</div><div className="stat-foot">{position ? 'ระยะเส้นตรงจากตำแหน่งคุณ' : 'กดเรียงใกล้ฉันเพื่อคำนวณระยะ'}</div></article></section>
+            <section className="home-challenge" aria-label="Monthly challenge leaderboard"><div className="home-challenge-heading"><div><div className="eyebrow">MONTHLY CHALLENGE</div><h2>กระดานผู้นำ</h2></div><span>เช็คอินรับ +20 PTS</span></div><TopThreeChallenge players={challengePlayers} /></section>
             <div className="section-heading"><div><div className="eyebrow">FIND YOUR GYM</div><h2>เลือกสาขาใกล้คุณ <span className="nearby-count">{filteredPlaces.length}</span></h2></div><button className="location-button" onClick={locateMe} disabled={locating}><LocateFixed size={16} /> {locating ? 'กำลังค้นหา…' : position ? 'อัปเดตตำแหน่ง' : 'ใช้ตำแหน่งของฉัน'}</button></div>
             <div className="gym-filters" aria-label="กรองแบรนด์ยิม"><button className={`filter-toggle ${brandFilter === 'Fitness First' ? 'active' : ''}`} aria-pressed={brandFilter === 'Fitness First'} onClick={() => toggleBrand('Fitness First')}>Fitness First</button><button className={`filter-toggle ${brandFilter === 'Jetts' ? 'active' : ''}`} aria-pressed={brandFilter === 'Jetts'} onClick={() => toggleBrand('Jetts')}>Jetts</button><button className={`filter-toggle distance-toggle ${sortByDistance ? 'active' : ''}`} aria-pressed={sortByDistance} onClick={toggleDistanceSort}><LocateFixed size={14} /> {sortByDistance ? 'เรียงใกล้ฉัน: เปิด' : 'เรียงใกล้ฉัน'}</button><span className="filter-state" role="status">{brandFilter === 'all' ? 'ทุกแบรนด์' : `กรอง: ${brandFilter}`} · {sortByDistance ? position ? 'ใกล้ไปไกล' : 'รอพิกัดเพื่อเรียง' : 'ลำดับเดิม'}</span></div>
             <div className="search-row"><label className="search-box"><Search size={17} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ค้นหาชื่อสาขา ย่าน หรือห้าง..." aria-label="ค้นหาสาขายิม" /></label></div>
             {!position && <div className="location-hint"><LocateFixed size={16} /><span>ยังไม่มีพิกัด — แสดงสาขาให้เลือกตามชื่อและย่าน คุณเลือกและเช็คอินได้เลยโดยไม่ต้องเปิด Location</span></div>}
             {geoError && <section className="geo-help" role="alert"><div className="geo-help-heading"><MapPin size={18} /><div><b>{geoError.title}</b><p>{geoError.message}</p></div></div><div className="geo-help-steps"><strong>วิธีเปิดสิทธิ์ตำแหน่ง</strong><ol><li>กดไอคอนกุญแจ/ตั้งค่าเว็บไซต์ข้างแถบที่อยู่ แล้วตั้งค่า Location เป็น “อนุญาต”</li><li>ตรวจสอบว่าเปิด Location Services ของโทรศัพท์หรือคอมพิวเตอร์</li><li>กลับมาหน้านี้แล้วกด “ลองระบุตำแหน่งอีกครั้ง”</li></ol><small>ชื่อเมนูอาจแตกต่างกันตามเบราว์เซอร์และอุปกรณ์</small></div><button className="geo-retry" onClick={locateMe} disabled={locating}><LocateFixed size={15} /> ลองระบุตำแหน่งอีกครั้ง</button></section>}
-            <div className="place-list">{filteredPlaces.map((place, index) => <article key={place.id} className={`place-card gym-card ${selectedGymId === place.id ? 'selected' : ''}`}><span className={`place-icon ${place.color}`}><Dumbbell size={21} /></span><span className="place-info"><span className="place-title">{place.name}{sortByDistance && position && index === 0 && <span className="recommended">ใกล้ที่สุด</span>}</span><span className="place-type">{place.type}</span><span className="place-address"><MapPin size={12} /> {place.address}</span></span><span className="place-meta"><b>{place.distanceKm === null ? 'ระยะทาง —' : formatDistance(place.distanceKm)}</b><small>{position ? (sortByDistance && index === 0 ? 'ใกล้ตำแหน่งคุณที่สุด' : 'ระยะเส้นตรงโดยประมาณ') : place.brand}</small></span><button className={`gym-select ${selectedGymId === place.id ? 'chosen' : ''}`} onClick={() => { setSelectedGymId(place.id); setNotice('') }} aria-pressed={selectedGymId === place.id}>{selectedGymId === place.id ? <><Check size={14} /> เลือกแล้ว</> : 'เลือกยิม'}</button><button className="place-checkin" onClick={() => checkIn(place)} aria-label={`เช็คอินที่ ${place.name}`}>เช็คอิน</button></article>)}</div>
+            <div className="place-list">{filteredPlaces.map((place) => <article key={place.id} className={`place-card gym-card ${selectedGymId === place.id ? 'selected' : ''}`}><span className={`place-icon ${place.color}`}><Dumbbell size={21} /></span><span className="place-info"><span className="place-title">{place.name}{sortByDistance && position && filteredPlaces[0]?.id === place.id && <span className="recommended">ใกล้ที่สุด</span>}</span><span className="place-type">{place.type}</span><span className="place-address"><MapPin size={12} /> {place.address}</span></span><span className="place-meta"><b>{place.distanceKm === null ? 'ระยะทาง —' : formatDistance(place.distanceKm)}</b><small>{position ? (sortByDistance && filteredPlaces[0]?.id === place.id ? 'ใกล้ตำแหน่งคุณที่สุด' : 'ระยะเส้นตรงโดยประมาณ') : place.brand}</small></span><button className={`gym-select ${selectedGymId === place.id ? 'chosen' : ''}`} onClick={() => { setSelectedGymId(place.id); setNotice('') }} aria-pressed={selectedGymId === place.id}>{selectedGymId === place.id ? <><Check size={14} /> เลือกแล้ว</> : 'เลือกยิม'}</button><button className="place-checkin" onClick={() => checkIn(place)} aria-label={`เช็คอินที่ ${place.name}`}>เช็คอิน</button></article>)}</div>
             {filteredPlaces.length === 0 && <div className="empty-state">ไม่พบสาขาที่ค้นหา ลองเปลี่ยนคำค้นหรือเลือกแบรนด์อื่น</div>}
             {selectedGym && <div className="checkin-bar"><div className="checkin-copy"><span className="checkin-pin"><MapPin size={18} /></span><span><b>สาขาที่เลือก: {selectedGym.name}</b><small>{position ? `ระยะประมาณ ${formatDistance(distanceBetween(position.lat, position.lng, selectedGym.lat, selectedGym.lng))} · เช็คอินรับ 20 คะแนน` : 'เลือกเช็คอินได้เลย · ระยะทางจะไม่ถูกระบุจนกว่าจะเปิดตำแหน่ง'}</small></span></div><button className="checkin-button" onClick={() => checkIn(selectedGym)}>เช็คอินเลย <ArrowUpRight size={17} /></button></div>}
             {notice && <div className={`notice ${notice.includes('สำเร็จ') ? 'success' : ''}`} role="status">{notice}</div>}
@@ -175,7 +193,7 @@ function App() {
             <div className="welcome-row"><div><div className="eyebrow"><span className="live-dot" /> YOUR WORKOUT HISTORY</div><h1>กิจกรรมของฉัน</h1><p className="subtitle">ประวัติการเช็คอินที่เก็บไว้ใน localStorage ของเบราว์เซอร์นี้</p></div><div className="date-chip"><span className="date-icon"><Activity size={17} /></span><span><b>{checkins.length} ครั้ง</b><small>ประวัติทั้งหมด</small></span></div></div>
             <section className="stats-row" aria-label="สรุปกิจกรรม"><article className="stat-card"><span className="stat-icon yellow"><Zap size={17} fill="currentColor" /></span><div className="stat-label">คะแนนที่ได้รับ</div><div className="stat-value">{totalPoints}<small> pts</small></div><div className="stat-foot">จากรายการเช็คอิน</div></article><article className="stat-card"><span className="stat-icon green"><MapPin size={17} /></span><div className="stat-label">เช็คอินเดือนนี้</div><div className="stat-value">{monthlyCheckins}<small> ครั้ง</small></div><div className="stat-foot">เดือนปัจจุบัน</div></article><article className="stat-card"><span className="stat-icon orange"><Dumbbell size={17} /></span><div className="stat-label">สาขาที่เคยไป</div><div className="stat-value">{new Set(checkins.map((entry) => entry.gymId)).size}<small> แห่ง</small></div><div className="stat-foot">ไม่ซ้ำกัน</div></article></section>
             <div className="activity-heading page-activity-heading"><div><div className="eyebrow">CHECK-IN HISTORY</div><h2>ประวัติการเช็คอิน</h2></div><button className="location-button" onClick={() => setPage('checkin')}><MapPin size={15} /> เลือกยิม</button></div>
-            {checkins.length ? <div className="checkin-history">{checkins.map((entry) => <article className="history-item" key={entry.id}><span className="activity-mark"><Dumbbell size={17} /></span><span className="history-main"><b>{entry.gymName}</b><small><Clock3 size={12} /> {formatDate(entry.timestamp)}</small></span><span className="history-distance"><MapPin size={13} /> {entry.distance || 'ไม่ได้ระบุ (ไม่มีพิกัด)'}</span><span className="points">+{entry.points} pts</span></article>)}</div> : <div className="activity-empty"><span><Activity size={23} /></span><b>ยังไม่มีประวัติการเช็คอิน</b><p>รายการชื่อยิม ระยะทาง เวลา และคะแนนจะปรากฏที่นี่หลังเช็คอิน</p><button className="checkin-button" onClick={() => setPage('checkin')}>เลือกยิมใกล้ฉัน <ArrowUpRight size={16} /></button></div>}
+            {checkins.length ? <div className="checkin-history">{checkins.map((entry) => <article className="history-item" key={entry.id}><span className="activity-mark"><Dumbbell size={17} /></span><span className="history-main"><b>{entry.gymName}</b><small><Clock3 size={12} /> {formatDate(entry.timestamp)}</small></span><span className="history-distance"><MapPin size={13} /> {entry.distance || '���ม่ได้ระบุ (ไม่มีพิกัด)'}</span><span className="points">+{entry.points} pts</span></article>)}</div> : <div className="activity-empty"><span><Activity size={23} /></span><b>ยังไม่มีประวัติการเช็คอิน</b><p>รายการชื่อยิม ระยะทาง เวลา และคะแนนจะปรากฏที่นี่หลังเช็คอิน</p><button className="checkin-button" onClick={() => setPage('checkin')}>เลือกยิมใกล้ฉัน <ArrowUpRight size={16} /></button></div>}
             <footer className="footer-note"><Clock3 size={13} /> บันทึกในเบราว์เซอร์เครื่องนี้เท่านั้น <span>·</span> <b>เช็คอินได้แม้ปิดการระบุตำแหน่ง</b></footer>
           </section>}
         </div>
