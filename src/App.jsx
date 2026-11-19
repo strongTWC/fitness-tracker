@@ -8,6 +8,7 @@ import Guide from './Guide'
 import DesktopSidebar from './components/Layout/DesktopSidebar'
 import MobileBottomNav from './components/Layout/MobileBottomNav'
 import GlobalHeader from './components/Layout/GlobalHeader'
+import LoadingScreen from './components/LoadingScreen'
 import './geolocation.css'
 import './gym-filters.css'
 import './challenge-home.css'
@@ -94,6 +95,7 @@ function getCombo(entries) {
 }
 
 function App() {
+  const [bootLoaderPhase, setBootLoaderPhase] = useState('visible')
   const [view, setView] = useState('home')
   const [pendingGuideCategoryId, setPendingGuideCategoryId] = useState(null)
   const [checkins, setCheckins] = useState(() => readArray(CHECKINS_KEY))
@@ -108,6 +110,37 @@ function App() {
   const [notice, setNotice] = useState('')
   const [footerModal, setFooterModal] = useState(null)
   const [formNotice, setFormNotice] = useState('')
+
+  useEffect(() => {
+    let hideTimer = null
+    let removeTimer = null
+    let fallbackTimer = null
+    let finished = false
+
+    const finishLoading = () => {
+      if (finished) return
+      finished = true
+      if (fallbackTimer !== null) window.clearTimeout(fallbackTimer)
+      hideTimer = window.setTimeout(() => {
+        setBootLoaderPhase('leaving')
+        removeTimer = window.setTimeout(() => setBootLoaderPhase('hidden'), 240)
+      }, 700)
+    }
+
+    if (document.readyState === 'complete') {
+      finishLoading()
+    } else {
+      window.addEventListener('load', finishLoading, { once: true })
+      fallbackTimer = window.setTimeout(finishLoading, 3500)
+    }
+
+    return () => {
+      window.removeEventListener('load', finishLoading)
+      if (fallbackTimer !== null) window.clearTimeout(fallbackTimer)
+      if (hideTimer !== null) window.clearTimeout(hideTimer)
+      if (removeTimer !== null) window.clearTimeout(removeTimer)
+    }
+  }, [])
 
   function navigateToView(nextView) {
     if (nextView !== 'guide') setPendingGuideCategoryId(null)
@@ -273,6 +306,7 @@ function App() {
 
   return (
     <div className="fit-app">
+      {bootLoaderPhase !== 'hidden' && <LoadingScreen leaving={bootLoaderPhase === 'leaving'} />}
       <DesktopSidebar
         items={navItems}
         activeView={view}
