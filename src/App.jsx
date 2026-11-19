@@ -5,6 +5,9 @@ import {
 } from 'lucide-react'
 import TopThreeChallenge from './components/TopThreeChallenge'
 import Guide from './Guide'
+import DesktopSidebar from './components/Layout/DesktopSidebar'
+import MobileBottomNav from './components/Layout/MobileBottomNav'
+import GlobalHeader from './components/Layout/GlobalHeader'
 import './geolocation.css'
 import './gym-filters.css'
 import './challenge-home.css'
@@ -249,37 +252,28 @@ function App() {
     }
   }
 
-  const nav = navItems.map(({ id, label, icon: Icon }) => (
-    <button key={id} type="button" className={`fit-nav-link ${view === id ? 'active' : ''}`} onClick={() => setView(id)}>
-      <Icon size={17} /> {label}
-    </button>
-  ))
-
   const footerModalTitle = footerModal === 'feedback'
     ? 'ความคิดเห็นต่อผู้พัฒนา'
     : footerModal === 'suggestion' ? 'แจ้งเพิ่มสาขายิม' : 'กติกา & การคิดคะแนน'
 
   return (
     <div className="fit-app">
-      <aside className="fit-sidebar">
-        <a className="fit-brand" href="#home" onClick={(event) => { event.preventDefault(); setView('home') }}>
-          <span><Activity size={19} /></span> fitcheck<span className="fit-brand-dot">.</span>
-        </a>
-        <div className="fit-nav-title">เมนูหลัก</div>
-        <nav className="fit-nav">{nav}</nav>
-        <div className="fit-sidebar-bottom">
-          <div className="fit-streak"><Flame size={17} /><span><b>คอมโบต่อเนื่อง</b><small>{combo} วัน</small></span></div>
-          <div className="fit-user"><span className="fit-avatar fit-avatar-initial">T</span><b>Tanawat</b></div>
-        </div>
-      </aside>
+      <DesktopSidebar
+        items={navItems}
+        activeView={view}
+        onNavigate={setView}
+        onProfileClick={() => setView('profile')}
+        streakDays={combo}
+        profileName="Tanawat"
+      />
 
       <main className="fit-main">
-        <header className="fit-topbar">
-          <div><span>FitCheck</span><i>/</i><b>{navItems.find((item) => item.id === view)?.label}</b></div>
-          <button type="button" className="fit-topbar-profile" onClick={() => setView('profile')}>
-            <span className="fit-avatar fit-avatar-initial">T</span> Tanawat
-          </button>
-        </header>
+        <GlobalHeader
+          pageTitle={navItems.find((item) => item.id === view)?.label || 'เช็คอิน'}
+          onLogoClick={() => setView('home')}
+          onProfileClick={() => setView('profile')}
+          profile={{ name: 'Tanawat' }}
+        />
 
         {view === 'home' && (
           <div className="fit-content">
@@ -426,13 +420,7 @@ function App() {
         )}
       </main>
 
-      <nav className="fit-mobile-nav" aria-label="เมนูด้านล่าง">
-        {navItems.map(({ id, label, icon: Icon }) => (
-          <button key={id} type="button" className={view === id ? 'active' : ''} onClick={() => setView(id)}>
-            <Icon size={18} /><span>{label}</span>
-          </button>
-        ))}
-      </nav>
+      <MobileBottomNav items={navItems} activeView={view} onNavigate={setView} />
 
       {confirmGym && (
         <div className="fit-confirm-backdrop" role="presentation" onClick={() => setConfirmGym(null)}>
