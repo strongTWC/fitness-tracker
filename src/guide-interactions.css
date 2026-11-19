@@ -1,0 +1,130 @@
+.fit-guide-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 14px 0 12px;
+  padding: 10px 12px;
+  border: 1px solid #29322c;
+  border-radius: 12px;
+  background: #101310;
+  color: #929d91;
+}
+
+.fit-guide-search:focus-within {
+  border-color: #647a46;
+}
+
+.fit-guide-search input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #f2f4ef;
+}
+
+.fit-guide-search-clear {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: #29351f;
+  color: #a3e635;
+  cursor: pointer;
+}
+
+.fit-guide-groups {
+  display: grid;
+  gap: 14px;
+}
+
+.fit-guide-group {
+  min-width: 0;
+}
+
+.fit-guide-group-title {
+  margin: 0 0 8px;
+  color: #929d91;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.fit-guide-empty {
+  margin: 8px 0;
+  color: #929d91;
+  font-size: 13px;
+}
+
+.fit-guide-detail-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.fit-guide-detail-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fit-guide-detail-nav button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 9px;
+  border: 1px solid #29322c;
+  border-radius: 9px;
+  background: #101310;
+  color: #a3e635;
+  cursor: pointer;
+}
+
+.fit-guide-detail-nav span {
+  color: #929d91;
+  font-size: 11px;
+}
+
+.fit-guide-side-switch {
+  display: inline-flex;
+  gap: 4px;
+  margin: 12px 0;
+  padding: 4px;
+  border: 1px solid #29322c;
+  border-radius: 10px;
+  background: #101310;
+}
+
+.fit-guide-side-switch button {
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #929d91;
+  cursor: pointer;
+}
+
+.fit-guide-side-switch button.active {
+  background: #29351f;
+  color: #a3e635;
+}
+
+@media (max-width: 600px) {
+  .fit-guide-detail-heading {
+    display: grid;
+  }
+
+  .fit-guide-detail-nav {
+    justify-content: space-between;
+  }
+
+  .fit-guide-detail-nav button {
+    padding: 7px;
+  }
+}
